@@ -1,11 +1,13 @@
 package com.call.my.owner.services;
 
+import com.call.my.owner.entities.Stuff;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -15,10 +17,15 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 
+@Service
 public class QrWriter {
 
-    public void createQRCode(){
-        String myCodeText = "https://google.com/";
+    public File createStuffQr(Stuff stuff) {
+        String url = "http://localhost:9999/contact/" + stuff.getId();
+        return createQRCode(url);
+    }
+
+    private File createQRCode(String url) {
         String filePath = "QR.png";
         int size = 250;
         String fileType = "png";
@@ -33,7 +40,7 @@ public class QrWriter {
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
 
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
-            BitMatrix byteMatrix = qrCodeWriter.encode(myCodeText, BarcodeFormat.QR_CODE, size, size, hintMap);
+            BitMatrix byteMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, size, size, hintMap);
             int width = byteMatrix.getWidth();
 
             BufferedImage image = new BufferedImage(width, width, BufferedImage.TYPE_INT_RGB);
@@ -58,6 +65,7 @@ public class QrWriter {
             e.printStackTrace();
         }
         System.out.println("\n\nYou have successfully created QR Code.");
+        return myFile;
     }
 
 }

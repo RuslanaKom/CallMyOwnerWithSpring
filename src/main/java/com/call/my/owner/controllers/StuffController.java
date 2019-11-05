@@ -7,6 +7,7 @@ import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.exceptions.NoStuffFoundException;
 import com.call.my.owner.exceptions.UserNotFoundException;
 import com.call.my.owner.security.UserAccountService;
+import com.call.my.owner.services.QrWriter;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +38,8 @@ public class StuffController {
     private StuffDao stuffDao;
     @Autowired
     UserAccountService userAccountService;
+    @Autowired
+    private QrWriter qrWriter;
 
     @PostMapping
     public @ResponseBody
@@ -84,4 +88,21 @@ public class StuffController {
         }
         return new ResponseEntity<Stuff>(stuff, HttpStatus.OK);
     }
+
+    @GetMapping("/qr")
+    public @ResponseBody
+    ResponseEntity<File> createQrForStuff(Principal principal, @RequestParam String stuffId) throws NoLoggedInUserException, NoStuffFoundException {
+        logger.info("Searching for user's stuff by id");
+        if (principal == null) {
+            throw new NoLoggedInUserException();
+        }
+        UserAccount userAccount = userAccountService.loadUserByUsername(principal.getName());
+        Stuff stuff = stuffDao.findById(stuffId).orElseThrow(() -> new NoStuffFoundException("No stuff with this id found"));
+        if (!stuff.getUserId().equals(userAccount.getId())) {
+            throw new NoStuffFoundException("No stuff with this id found for logged user");
+        }
+        File file = qrWriter.createStuffQr(stuff);
+        return new ResponseEntity<>(file, HttpStatus.OK);
+    }
+
 }
