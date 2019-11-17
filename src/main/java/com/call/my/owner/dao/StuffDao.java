@@ -12,4 +12,7 @@ public interface StuffDao extends MongoRepository<Stuff, String> {
 
     @Query("{userId: ?0 }")
     List<Stuff> findByUserId(ObjectId userId);
+
+    @Query("{userId: ?0 }, {stuffName:1}")
+    List<Stuff> findStuffNamesByUserId(ObjectId userId);
 }
