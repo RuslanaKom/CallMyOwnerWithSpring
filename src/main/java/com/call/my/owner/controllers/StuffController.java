@@ -2,6 +2,7 @@ package com.call.my.owner.controllers;
 
 import com.call.my.owner.entities.Stuff;
 import com.call.my.owner.services.StuffService;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +49,7 @@ public class StuffController {
 
     @GetMapping("/id")
     public @ResponseBody
-    ResponseEntity<?> getStuffById(Principal principal, @RequestParam String id) {
+    ResponseEntity<?> getStuffById(Principal principal, @RequestParam ObjectId id) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(stuffService.getStuffById(principal, id));
         } catch (Exception e) {
@@ -57,11 +58,11 @@ public class StuffController {
         }
     }
 
-    @GetMapping("/qr")
+    @PostMapping("/qr")
     public @ResponseBody
-    ResponseEntity<?> createQrForStuff(Principal principal, @RequestParam String stuffId) {
+    ResponseEntity<?> createQrForStuff(Principal principal, @RequestBody Stuff stuff) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(stuffService.createQrForStuff(principal, stuffId));
+            return ResponseEntity.status(HttpStatus.OK).body(stuffService.createQrForStuff(principal, stuff.getId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

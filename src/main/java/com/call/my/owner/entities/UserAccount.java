@@ -1,5 +1,6 @@
 package com.call.my.owner.entities;
 
+import com.call.my.owner.enums.UserRole;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -20,10 +21,16 @@ public class UserAccount implements UserDetails {
 
     private String password;
 
-
     private String defaultEmail;
 
     private String role;
+
+    public UserAccount(String username, String password, String defaultEmail) {
+        this.username = username;
+        this.password = password;
+        this.defaultEmail = defaultEmail;
+        this.role = UserRole.USER.toString();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

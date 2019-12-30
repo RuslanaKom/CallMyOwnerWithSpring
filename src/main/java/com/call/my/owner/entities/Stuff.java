@@ -15,6 +15,23 @@ public class Stuff {
     private String contactEmail;
     private String defaultMessage;
 
+    public Stuff(ObjectId id, ObjectId userId, String stuffName, String contactEmail, String defaultMessage) {
+        this.id = id;
+        this.userId = userId;
+        this.stuffName = stuffName;
+        this.contactEmail = contactEmail;
+        this.defaultMessage = defaultMessage;
+    }
+
+    public Stuff(String stuffName, String contactEmail, String defaultMessage) {
+        this.stuffName = stuffName;
+        this.contactEmail = contactEmail;
+        this.defaultMessage = defaultMessage;
+    }
+
+    public Stuff() {
+    }
+
     public ObjectId getId() {
         return id;
     }

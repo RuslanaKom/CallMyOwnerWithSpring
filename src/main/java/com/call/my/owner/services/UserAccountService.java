@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,7 +34,11 @@ public class UserAccountService implements UserDetailsService {
     @Override
     public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
         System.out.println("searching for user by username");
-        return Optional.ofNullable(userDao.findByUsername(username).get(0)).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        List<UserAccount> users = userDao.findByUsername(username);
+        if (users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return users.get(0);
     }
 
     public

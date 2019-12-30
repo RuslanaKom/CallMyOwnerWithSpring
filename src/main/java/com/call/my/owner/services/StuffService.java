@@ -8,6 +8,7 @@ import com.call.my.owner.exceptions.DuplicateStuffNameException;
 import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.exceptions.NoStuffFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class StuffService {
         UserAccount userAccount = userAccountService.loadUserByUsername(userName);
         //check if stuff already in db
         if (stuff.getId() != null) {
-            findStuffByIdAndUser(String.valueOf(stuff.getId()), userAccount);
+            findStuffByIdAndUser(stuff.getId(), userAccount);
         }
         //check if stuff with same name does not exist
         else {
@@ -78,7 +79,7 @@ public class StuffService {
         return stuffDao.findByUserId(userAccount.getId());
     }
 
-    public Stuff getStuffById(Principal principal, String id) throws NoLoggedInUserException, NoStuffFoundException {
+    public Stuff getStuffById(Principal principal, ObjectId id) throws NoLoggedInUserException, NoStuffFoundException {
         if (principal == null) {
             throw new NoLoggedInUserException();
         }
@@ -87,7 +88,7 @@ public class StuffService {
         return stuff;
     }
 
-    public File createQrForStuff(Principal principal, String stuffId) throws NoLoggedInUserException, NoStuffFoundException {
+    public File createQrForStuff(Principal principal, ObjectId stuffId) throws NoLoggedInUserException, NoStuffFoundException {
         if (principal == null) {
             throw new NoLoggedInUserException();
         }
@@ -96,8 +97,8 @@ public class StuffService {
         return qrWriter.createStuffQr(stuff);
     }
 
-    private Stuff findStuffByIdAndUser(String stuffId, UserAccount userAccount) throws NoStuffFoundException {
-        Stuff stuff = stuffDao.findById(stuffId)
+    private Stuff findStuffByIdAndUser(ObjectId stuffId, UserAccount userAccount) throws NoStuffFoundException {
+        Stuff stuff = stuffDao.findById(stuffId.toString())
                 .orElseThrow(() -> new NoStuffFoundException("No stuff with this id found"));
         if (!stuff.getUserId()
                 .equals(userAccount.getId())) {
@@ -106,4 +107,7 @@ public class StuffService {
         return stuff;
     }
 
+    public Stuff getStuffByIdOnly(String stuffId) throws NoStuffFoundException {
+        return stuffDao.findById(stuffId).orElseThrow(() -> new NoStuffFoundException("Nothing found"));
+    }
 }

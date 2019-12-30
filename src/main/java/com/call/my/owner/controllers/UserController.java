@@ -1,14 +1,18 @@
 package com.call.my.owner.controllers;
 
-import com.call.my.owner.dao.UserDao;
 import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.UserNotFoundException;
+import com.call.my.owner.security.JwtAuthenticationResponse;
+import com.call.my.owner.security.JwtTokenProvider;
 import com.call.my.owner.services.UserAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,17 +26,35 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
-    private UserDao userDao;
-
+    private final AuthenticationManager authenticationManager;
     private final UserAccountService userAccountService;
+    private final JwtTokenProvider tokenProvider;
 
-    public UserController(UserAccountService userAccountService) {
+    public UserController(AuthenticationManager authenticationManager, UserAccountService userAccountService, JwtTokenProvider tokenProvider) {
+        this.authenticationManager = authenticationManager;
         this.userAccountService = userAccountService;
+        this.tokenProvider = tokenProvider;
     }
+
+    @PostMapping("/signin")
+    public ResponseEntity<?> authenticateUser(@RequestParam String username, @RequestParam String password) {
+        logger.info("2222");
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        username, password
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = tokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+    }
+
 
     @PostMapping
     public @ResponseBody ResponseEntity<?> createUserAccount(@RequestBody UserAccount userAccount){
+        logger.info("registering user");
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(userAccountService.createUserAccount(userAccount));
