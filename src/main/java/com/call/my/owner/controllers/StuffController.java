@@ -1,10 +1,15 @@
 package com.call.my.owner.controllers;
 
 import com.call.my.owner.entities.Stuff;
+import com.call.my.owner.entities.UserAccount;
+import com.call.my.owner.exceptions.NoLoggedInUserException;
+import com.call.my.owner.services.AutenticationService;
 import com.call.my.owner.services.StuffService;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,9 +25,11 @@ import java.security.Principal;
 public class StuffController {
 
     private final StuffService stuffService;
+    private final AutenticationService autenticationService;
 
-    public StuffController(StuffService stuffService) {
+    public StuffController(StuffService stuffService, AutenticationService autenticationService) {
         this.stuffService = stuffService;
+        this.autenticationService = autenticationService;
     }
 
     @PostMapping
@@ -37,11 +44,22 @@ public class StuffController {
         }
     }
 
+//    @GetMapping
+//    public @ResponseBody
+//    ResponseEntity<?> getStuffByUser(Principal principal) {
+//        try {
+//            return ResponseEntity.status(HttpStatus.OK).body(stuffService.getStuffByUser(principal));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//        }
+//    }
+
     @GetMapping
     public @ResponseBody
-    ResponseEntity<?> getStuffByUser(Principal principal) {
+    ResponseEntity<?> getStuffByUser() throws NoLoggedInUserException {
+        UserAccount userAccount = autenticationService.getUser();
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(stuffService.getStuffByUser(principal));
+            return ResponseEntity.status(HttpStatus.OK).body(stuffService.getStuffByUser(userAccount));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

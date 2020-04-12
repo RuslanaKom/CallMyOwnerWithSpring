@@ -1,5 +1,7 @@
 package com.call.my.owner.controllers;
 
+import com.call.my.owner.dto.UserAccountDto;
+import com.call.my.owner.dto.UserLoginDto;
 import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.UserNotFoundException;
 import com.call.my.owner.security.JwtAuthenticationResponse;
@@ -37,11 +39,11 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestParam String username, @RequestParam String password) {
+    public ResponseEntity<?> authenticateUser(@RequestBody UserLoginDto userLoginDto) {
         logger.info("2222");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        username, password
+                        userLoginDto.getUsername(), userLoginDto.getPassword()
                 )
         );
 
@@ -51,13 +53,13 @@ public class UserController {
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
-
     @PostMapping
-    public @ResponseBody ResponseEntity<?> createUserAccount(@RequestBody UserAccount userAccount){
+    public @ResponseBody ResponseEntity<?> createUserAccount(@RequestBody UserAccountDto userAccountDto){
         logger.info("registering user");
         try {
+            userAccountService.validateUserInput(userAccountDto);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(userAccountService.createUserAccount(userAccount));
+                    .body(userAccountService.createUserAccount(userAccountDto.toUserAccount()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

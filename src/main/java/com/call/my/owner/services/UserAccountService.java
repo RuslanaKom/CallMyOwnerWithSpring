@@ -2,28 +2,28 @@ package com.call.my.owner.services;
 
 import com.call.my.owner.controllers.UserController;
 import com.call.my.owner.dao.UserDao;
+import com.call.my.owner.dto.UserAccountDto;
 import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.DuplicateUserNameException;
 import com.call.my.owner.exceptions.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.security.InvalidParameterException;
 import java.util.List;
-import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserAccountService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final String USERNAME_REGEX = "^[a-z0-9_-]{3,15}$";
 
     private final UserDao userDao;
 
@@ -58,5 +58,13 @@ public class UserAccountService implements UserDetailsService {
     public UserAccount getUserById(String id) throws UserNotFoundException {
         logger.info("Searching for user with id {}", id);
         return  userDao.findById(id).orElseThrow(()->new UserNotFoundException());
+    }
+
+    public void validateUserInput(UserAccountDto userAccountDto){
+        final Pattern pattern = Pattern.compile(USERNAME_REGEX);
+        final Matcher matcher = pattern.matcher(userAccountDto.getUsername());
+        if (!matcher.find()){
+           throw new InvalidParameterException();
+        }
     }
 }

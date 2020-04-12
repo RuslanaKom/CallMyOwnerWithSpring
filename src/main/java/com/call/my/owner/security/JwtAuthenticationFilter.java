@@ -1,6 +1,7 @@
 package com.call.my.owner.security;
 
 import com.call.my.owner.services.UserAccountService;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,11 +30,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        System.out.println("TOKEN VALIDATION");
         try {
             String jwt = getJwtFromRequest(request);
+            jwt = jwt.replace("{\"accessToken\":\"", Strings.EMPTY);
+            jwt = jwt.replace("\",\"tokenType\":\"Bearer\"}",Strings.EMPTY);
             logger.error("11");
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+           if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUserNameFromJWT(jwt);
 
                 UserDetails userDetails = userAccountService.loadUserByUsername(username);

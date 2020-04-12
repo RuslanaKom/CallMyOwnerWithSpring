@@ -70,6 +70,10 @@ public class StuffService {
         return stuffDao.save(stuff);
     }
 
+    public List<Stuff> getStuffByUser(UserAccount userAccount) {
+        return stuffDao.findByUserId(userAccount.getId());
+    }
+
     public List<Stuff> getStuffByUser(Principal principal) throws NoLoggedInUserException {
         if (principal == null) {
             throw new NoLoggedInUserException();
