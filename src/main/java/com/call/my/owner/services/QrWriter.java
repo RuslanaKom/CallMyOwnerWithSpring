@@ -26,7 +26,7 @@ public class QrWriter {
     }
 
     private File createQRCode(String url) {
-        String filePath = "QR.png";
+        String filePath = "C:\\Projects\\CallMyOwnerSpring\\qr\\QR.png";
         int size = 250;
         String fileType = "png";
         File myFile = new File(filePath);

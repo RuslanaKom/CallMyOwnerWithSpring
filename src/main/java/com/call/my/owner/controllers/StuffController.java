@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,12 +33,39 @@ public class StuffController {
         this.autenticationService = autenticationService;
     }
 
+//    @PostMapping
+//    public @ResponseBody
+//    ResponseEntity<?> createUpdateStuff(Principal principal, @RequestBody Stuff stuff) {
+//        try {
+//            return ResponseEntity.status(HttpStatus.CREATED)
+//                    .body(stuffService.createUpdateStuff(principal, stuff));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(e.getMessage());
+//        }
+//    }
+
     @PostMapping
     public @ResponseBody
-    ResponseEntity<?> createUpdateStuff(Principal principal, @RequestBody Stuff stuff) {
+    ResponseEntity<?> createUpdateStuff(@RequestBody Stuff stuff) throws NoLoggedInUserException {
+        UserAccount userAccount = autenticationService.getUser();
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(stuffService.createUpdateStuff(principal, stuff));
+                    .body(stuffService.createUpdateStuff(userAccount, stuff));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping
+    public @ResponseBody
+    ResponseEntity<?> deleteStuff(@RequestParam String stuffId) throws NoLoggedInUserException {
+        System.out.println("removing item with id" + stuffId);
+        UserAccount userAccount = autenticationService.getUser();
+        try {
+            stuffService.deleteStuffById(userAccount, stuffId);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -67,9 +95,10 @@ public class StuffController {
 
     @GetMapping("/id")
     public @ResponseBody
-    ResponseEntity<?> getStuffById(Principal principal, @RequestParam ObjectId id) {
+    ResponseEntity<?> getStuffById(@RequestParam String stuffId) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(stuffService.getStuffById(principal, id));
+            UserAccount userAccount = autenticationService.getUser();
+            return ResponseEntity.status(HttpStatus.OK).body(stuffService.getStuffById(userAccount, stuffId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -81,6 +110,18 @@ public class StuffController {
     ResponseEntity<?> createQrForStuff(Principal principal, @RequestBody Stuff stuff) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(stuffService.createQrForStuff(principal, stuff.getId()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/qr")
+    public @ResponseBody
+    ResponseEntity<?> generateQr( @RequestParam String stuffId) {
+        System.out.println("QR generation");
+        try {
+            UserAccount userAccount = autenticationService.getUser();
+            return ResponseEntity.status(HttpStatus.OK).body(stuffService.generateQr(userAccount, stuffId));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

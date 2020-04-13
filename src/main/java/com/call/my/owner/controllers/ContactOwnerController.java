@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -38,26 +40,26 @@ public class ContactOwnerController {
     @GetMapping("/{id}")
     public RedirectView openContactForm(@PathVariable String id, RedirectAttributes redirectAttributes) throws NoStuffFoundException {
         Stuff stuff = stuffService.getStuffByIdOnly(id);
-        return new RedirectView("http://localhost:3000/contact/ui/" + id);
+        return new RedirectView("http://localhost:4200/contact/" + id);
     }
 
-    @GetMapping("/sendmessage")
+    @PostMapping("/sendmessage")
     public @ResponseBody
-    ResponseEntity<List<Stuff>> contactOwner(@RequestParam String id, @RequestParam String message) throws NoStuffFoundException, UserNotFoundException {
+    ResponseEntity contactOwner(@RequestParam String id, @RequestBody String message) throws NoStuffFoundException, UserNotFoundException {
         Stuff stuff = stuffService.getStuffByIdOnly(id);
         String fullMessage = stuff.getDefaultMessage() + System.lineSeparator() + message;
         //springMailSender.sendMessage("stuffost@gmail.com", stuff.getStuffName(), fullMessage);
         String contactEmail = stuff.getContactEmail();
-        if(contactEmail==null || Strings.isEmpty(contactEmail)){
-            UserAccount userAccount = userService.getUserById(stuff.getUserId().toString());
+        if (contactEmail == null || Strings.isEmpty(contactEmail)) {
+            UserAccount userAccount = userService.getUserById(stuff.getUserId()
+                    .toString());
             contactEmail = userAccount.getDefaultEmail();
         }
         //* todo uncomment after testing */
-         springMailSender.sendMessage(contactEmail, stuff.getStuffName(), fullMessage);
+        springMailSender.sendMessage(contactEmail, stuff.getStuffName(), fullMessage);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 
 
 }

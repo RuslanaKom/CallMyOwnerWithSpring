@@ -2,6 +2,7 @@ package com.call.my.owner.services;
 
 import com.call.my.owner.controllers.StuffController;
 import com.call.my.owner.dao.StuffDao;
+import com.call.my.owner.dto.StuffDto;
 import com.call.my.owner.entities.Stuff;
 import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.DuplicateStuffNameException;
@@ -70,8 +71,33 @@ public class StuffService {
         return stuffDao.save(stuff);
     }
 
-    public List<Stuff> getStuffByUser(UserAccount userAccount) {
-        return stuffDao.findByUserId(userAccount.getId());
+    public Stuff createUpdateStuff(UserAccount userAccount, Stuff stuff) throws Exception {
+        //check if stuff already in db
+        if (stuff.getId() != null) {
+            findStuffByIdAndUser(stuff.getId(), userAccount);
+        }
+        //check if stuff with same name does not exist
+        else {
+            List<String> namesList = stuffDao.findStuffNamesByUserId(userAccount.getId())
+                    .stream()
+                    .map(Stuff::getStuffName)
+                    .collect(Collectors.toList());
+            if (namesList.contains(stuff.getStuffName())) {
+                logger.info("Stuff with such name already exists");
+                throw new DuplicateStuffNameException();
+            }
+        }
+        stuff.setUserId(userAccount.getId());
+        if (StringUtils.equals(stuff.getContactEmail(), DEFAULT_EMAIL_IND)) {
+            stuff.setContactEmail(userAccount.getDefaultEmail());
+        }
+        logger.info("Adding some more stuff to user");
+        return stuffDao.save(stuff);
+    }
+
+    public List<StuffDto> getStuffByUser(UserAccount userAccount) {
+        List<Stuff> stuffList = stuffDao.findByUserId(userAccount.getId());
+        return stuffList.stream().map(s->new StuffDto(s)).collect(Collectors.toList());
     }
 
     public List<Stuff> getStuffByUser(Principal principal) throws NoLoggedInUserException {
@@ -83,12 +109,8 @@ public class StuffService {
         return stuffDao.findByUserId(userAccount.getId());
     }
 
-    public Stuff getStuffById(Principal principal, ObjectId id) throws NoLoggedInUserException, NoStuffFoundException {
-        if (principal == null) {
-            throw new NoLoggedInUserException();
-        }
-        UserAccount userAccount = userAccountService.loadUserByUsername(principal.getName());
-        Stuff stuff = findStuffByIdAndUser(id, userAccount);
+    public Stuff getStuffById(UserAccount userAccount, String id)throws NoStuffFoundException {
+        Stuff stuff = findStuffByIdAndUser(new ObjectId(id), userAccount);
         return stuff;
     }
 
@@ -113,5 +135,14 @@ public class StuffService {
 
     public Stuff getStuffByIdOnly(String stuffId) throws NoStuffFoundException {
         return stuffDao.findById(stuffId).orElseThrow(() -> new NoStuffFoundException("Nothing found"));
+    }
+
+    public File generateQr(UserAccount userAccount, String stuffId) throws NoStuffFoundException {
+        Stuff stuff = findStuffByIdAndUser(new ObjectId(stuffId), userAccount);
+        return qrWriter.createStuffQr(stuff);
+    }
+
+    public void deleteStuffById(UserAccount userAccount, String stuffId) {
+        stuffDao.deleteById(stuffId);
     }
 }

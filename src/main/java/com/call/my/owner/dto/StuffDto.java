@@ -1,29 +1,42 @@
 package com.call.my.owner.dto;
 
-import org.bson.types.ObjectId;
+import com.call.my.owner.entities.Stuff;
 
 public class StuffDto {
 
-    private ObjectId id;
-    private ObjectId userId;
+    private String id;
+    private String userId;
     private String stuffName;
     private String contactEmail;
     private String defaultMessage;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public ObjectId getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(ObjectId userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public StuffDto() {
+    }
+
+    public StuffDto(Stuff stuff) {
+        this.id = stuff.getId()
+                .toHexString();
+        this.userId = stuff.getUserId()
+                .toHexString();
+        this.stuffName = stuff.getStuffName();
+        this.contactEmail = stuff.getContactEmail();
+        this.defaultMessage = stuff.getDefaultMessage();
     }
 
     public String getStuffName() {
@@ -49,4 +62,5 @@ public class StuffDto {
     public void setDefaultMessage(String defaultMessage) {
         this.defaultMessage = defaultMessage;
     }
+
 }

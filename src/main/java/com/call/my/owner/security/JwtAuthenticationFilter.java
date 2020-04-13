@@ -33,10 +33,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("TOKEN VALIDATION");
         try {
             String jwt = getJwtFromRequest(request);
-            jwt = jwt.replace("{\"accessToken\":\"", Strings.EMPTY);
-            jwt = jwt.replace("\",\"tokenType\":\"Bearer\"}",Strings.EMPTY);
-            logger.error("11");
-
+            if (jwt != null) {
+                jwt = jwt.replace("{\"accessToken\":\"", Strings.EMPTY);
+                jwt = jwt.replace("\",\"tokenType\":\"Bearer\"}", Strings.EMPTY);
+            }
            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUserNameFromJWT(jwt);
 

@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/events").permitAll()
+                .antMatchers("/contact").permitAll()
                 .antMatchers("/users/tickets").hasAuthority("PARTICIPANT")
                 //.anyRequest().authenticated()
                 .and()
@@ -79,7 +79,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type","Cache-Control",
                 "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("x-auth-token"));
