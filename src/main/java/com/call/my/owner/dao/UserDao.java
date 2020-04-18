@@ -10,4 +10,5 @@ public interface UserDao extends MongoRepository<UserAccount, String> {
 
     @Query("{username: ?0 }")
     List<UserAccount> findByUsername(String username);
+
 }

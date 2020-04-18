@@ -29,27 +29,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("TOKEN VALIDATION");
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
             if (jwt != null) {
                 jwt = jwt.replace("{\"accessToken\":\"", Strings.EMPTY);
                 jwt = jwt.replace("\",\"tokenType\":\"Bearer\"}", Strings.EMPTY);
             }
-           if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String username = tokenProvider.getUserNameFromJWT(jwt);
-
                 UserDetails userDetails = userAccountService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+                        null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
         }
-
         filterChain.doFilter(request, response);
     }
 

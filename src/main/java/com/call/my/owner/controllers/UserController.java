@@ -41,15 +41,13 @@ public class UserController {
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody UserLoginDto userLoginDto) {
         logger.info("2222");
-        Authentication authentication = authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(         // AUTHENTICATION
                 new UsernamePasswordAuthenticationToken(
                         userLoginDto.getUsername(), userLoginDto.getPassword()
                 )
         );
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = tokenProvider.generateToken(authentication);
+        String jwt = tokenProvider.generateToken(authentication);                   // JWT TOKEN CREATION
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 

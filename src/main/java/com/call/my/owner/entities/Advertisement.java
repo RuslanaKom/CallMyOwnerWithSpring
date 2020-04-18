@@ -6,16 +6,21 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Document(collection="advertisement")
 public class Advertisement {
 
     @Id
     private ObjectId id;
+    private String header;
     private String text;
     private AdType type;
     private AdCategory category;
-    private String contactInfo;
+    private String phone;
     private String region;
+    private LocalDateTime date;
 
     public ObjectId getId() {
         return id;
@@ -23,6 +28,14 @@ public class Advertisement {
 
     public void setId(ObjectId id) {
         this.id = id;
+    }
+
+    public String getHeader() {
+        return header;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
     }
 
     public String getText() {
@@ -49,12 +62,12 @@ public class Advertisement {
         this.category = category;
     }
 
-    public String getContactInfo() {
-        return contactInfo;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setContactInfo(String contactInfo) {
-        this.contactInfo = contactInfo;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getRegion() {
@@ -63,5 +76,13 @@ public class Advertisement {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
     }
 }

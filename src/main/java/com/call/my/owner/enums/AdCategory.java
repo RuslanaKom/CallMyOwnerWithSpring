@@ -2,9 +2,9 @@ package com.call.my.owner.enums;
 
 public enum AdCategory {
 
-    ANIMAL,
+    PETS,
     TRANSPORT,
-    TECHNICAL,
+    TECHNICS,
     CLOTHES,
     TOYS,
     OTHER

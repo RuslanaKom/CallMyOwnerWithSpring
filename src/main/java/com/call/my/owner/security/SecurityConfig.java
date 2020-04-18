@@ -22,7 +22,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    private PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
     private final UserAccountService userAccountService;
     private final JwtTokenProvider tokenProvider;
@@ -48,6 +48,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userAccountService).passwordEncoder(encoder);
     }
 
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http
+//                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+//                .csrf().disable()
+//                .cors().and()
+//                .exceptionHandling()
+//                .authenticationEntryPoint(unauthorizedHandler)
+//                .and()
+//                .authorizeRequests()
+//                .antMatchers("/").permitAll()
+//                .antMatchers("/login").permitAll()
+//                .antMatchers("/contact").permitAll()
+//                .antMatchers("/stuff").hasAuthority("PARTICIPANT")
+//                //.anyRequest().authenticated()
+//                .and()
+//                .httpBasic()
+//                .and()
+//                .formLogin()
+//               //.failureForwardUrl("http://localhost:3000")
+//               //.defaultSuccessUrl("http://localhost:3000/stuff")
+//                .and()
+//                .logout()
+//                .clearAuthentication(true)
+//                .deleteCookies("JSESSIONID")
+//                .logoutSuccessUrl("http://localhost:4200/home");
+//    }
+
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -59,20 +86,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
-                .antMatchers("/contact").permitAll()
-                .antMatchers("/users/tickets").hasAuthority("PARTICIPANT")
-                //.anyRequest().authenticated()
+                .antMatchers("/register").permitAll()
+                .antMatchers("/stuff").authenticated()
+                .antMatchers("announcements/delete").hasAuthority("ADMIN")
                 .and()
                 .httpBasic()
                 .and()
                 .formLogin()
-               //.failureForwardUrl("http://localhost:3000")
-               //.defaultSuccessUrl("http://localhost:3000/stuff")
                 .and()
                 .logout()
                 .clearAuthentication(true)
-                .deleteCookies("JSESSIONID")
-                .logoutSuccessUrl("http://localhost:4200");
+                .deleteCookies("JSESSIONID");
     }
 
     @Bean

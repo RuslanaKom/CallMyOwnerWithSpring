@@ -18,11 +18,8 @@ public class UserAccount implements UserDetails {
 
     @Indexed(unique = true)
     private String username;
-
     private String password;
-
     private String defaultEmail;
-
     private String role;
 
     public UserAccount(String username, String password, String defaultEmail) {

@@ -41,12 +41,10 @@ public class UserAccountService implements UserDetailsService {
         return users.get(0);
     }
 
-    public
-    UserAccount createUserAccount(UserAccount userAccount) throws DuplicateUserNameException {
+    public UserAccount createUserAccount(UserAccount userAccount) throws DuplicateUserNameException {
         try {
             this.loadUserByUsername(userAccount.getUsername());
-        }
-        catch (UsernameNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
             userAccount.setPassword(encoder.encode(userAccount.getPassword()));
             logger.info("Creating new user account for user {}", userAccount.getUsername());
