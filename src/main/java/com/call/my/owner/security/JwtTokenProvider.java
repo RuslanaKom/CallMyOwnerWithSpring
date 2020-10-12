@@ -16,18 +16,17 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${app.jwtSecret}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${app.jwtExpirationInMs}")
+    @Value("${app.jwt.expirationInMs}")
     private int jwtExpirationInMs;
 
-    public String generateToken(Authentication authentication) {
-        UserAccount userAccount = (UserAccount) authentication.getPrincipal();
+    public String generateToken(String userName) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
         return Jwts.builder()
-                .setSubject(userAccount.getUsername())
+                .setSubject(userName)
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

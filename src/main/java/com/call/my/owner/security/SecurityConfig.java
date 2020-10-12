@@ -3,6 +3,7 @@ package com.call.my.owner.security;
 import com.call.my.owner.services.UserAccountService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@Order(1)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -28,10 +30,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
-    public SecurityConfig(UserAccountService userAccountService, JwtTokenProvider tokenProvider, JwtAuthenticationEntryPoint unauthorizedHandler) {
+    private final CustomOidUserService customOidUserService;
+    private final CustomAuthenticationSuccessHandler customLoginSuccessHandler;
+    private final CustomAuthenticationFailureHandler customLoginFailureHandler;
+
+    public SecurityConfig(UserAccountService userAccountService, JwtTokenProvider tokenProvider, JwtAuthenticationEntryPoint unauthorizedHandler, CustomOidUserService customOidUserService, CustomAuthenticationSuccessHandler customLoginSuccessHandler, CustomAuthenticationFailureHandler customLoginFailureHandler) {
         this.userAccountService = userAccountService;
         this.tokenProvider = tokenProvider;
         this.unauthorizedHandler = unauthorizedHandler;
+        this.customOidUserService = customOidUserService;
+        this.customLoginSuccessHandler = customLoginSuccessHandler;
+        this.customLoginFailureHandler = customLoginFailureHandler;
     }
 
     @Bean
@@ -48,33 +57,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userAccountService).passwordEncoder(encoder);
     }
 
-//    protected void configure(HttpSecurity http) throws Exception {
-//        http
-//                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-//                .csrf().disable()
-//                .cors().and()
-//                .exceptionHandling()
-//                .authenticationEntryPoint(unauthorizedHandler)
-//                .and()
-//                .authorizeRequests()
-//                .antMatchers("/").permitAll()
-//                .antMatchers("/login").permitAll()
-//                .antMatchers("/contact").permitAll()
-//                .antMatchers("/stuff").hasAuthority("PARTICIPANT")
-//                //.anyRequest().authenticated()
-//                .and()
-//                .httpBasic()
-//                .and()
-//                .formLogin()
-//               //.failureForwardUrl("http://localhost:3000")
-//               //.defaultSuccessUrl("http://localhost:3000/stuff")
-//                .and()
-//                .logout()
-//                .clearAuthentication(true)
-//                .deleteCookies("JSESSIONID")
-//                .logoutSuccessUrl("http://localhost:4200/home");
-//    }
-
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -87,6 +69,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers("/register").permitAll()
+                .antMatchers("/user").permitAll()
+                .antMatchers("/user/confirm").permitAll()
                 .antMatchers("/stuff").authenticated()
                 .antMatchers("announcements/delete").hasAuthority("ADMIN")
                 .and()
@@ -96,12 +80,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .clearAuthentication(true)
-                .deleteCookies("JSESSIONID");
+                .deleteCookies("JSESSIONID")
+                .and()
+                .oauth2Login()
+                .successHandler(customLoginSuccessHandler)
+                .failureHandler(customLoginFailureHandler)
+                .userInfoEndpoint().oidcUserService(customOidUserService);
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type","Cache-Control",

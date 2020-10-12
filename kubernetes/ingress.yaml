@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: call-my-owner-ingress
+spec:
+  tls:
+    - hosts:
+        - call-my-owner.
+  rules:
+    - host: vf-backoffice{{ .Values.ingress.domain }}
+      http:
+        paths:
+          - path: /backoffice/web-api
+            backend:
+              serviceName: vf-backoffice
+              servicePort: {{ .Values.service.ports.backend}}
+          - path: /backoffice/oauth2/authorization
+            backend:
+              serviceName: vf-backoffice
+              servicePort: {{ .Values.service.ports.backend}}
+          - path: /backoffice/login/oauth2
+            backend:
+              serviceName: vf-backoffice
+              servicePort: {{ .Values.service.ports.backend}}
+          - path: /
+            backend:
+              serviceName: vf-backoffice-web
+              servicePort: {{ .Values.service.ports.web}}

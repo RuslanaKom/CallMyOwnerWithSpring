@@ -40,14 +40,14 @@ public class UserController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody UserLoginDto userLoginDto) {
-        logger.info("2222");
         Authentication authentication = authenticationManager.authenticate(         // AUTHENTICATION
                 new UsernamePasswordAuthenticationToken(
                         userLoginDto.getUsername(), userLoginDto.getPassword()
                 )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);                   // JWT TOKEN CREATION
+        UserAccount userAccount = (UserAccount) authentication.getPrincipal();
+        String jwt = tokenProvider.generateToken(userAccount.getUsername());                   // JWT TOKEN CREATION
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
@@ -57,8 +57,23 @@ public class UserController {
         try {
             userAccountService.validateUserInput(userAccountDto);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(userAccountService.createUserAccount(userAccountDto.toUserAccount()));
+                    .body(userAccountService.createUserAccount(userAccountDto.toUserAccount(), false));
         } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/confirm")
+   public ResponseEntity confirmRegistration(@RequestBody String userId) {
+        try {
+            UserAccount userAccount = userAccountService.getUserById(userId);
+            userAccount.setEnabled(true);
+            userAccountService.saveUser(userAccount);
+            String jwt = tokenProvider.generateToken(userAccount.getUsername());
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        }
+        catch(UserNotFoundException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         }

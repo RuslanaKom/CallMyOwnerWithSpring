@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: call-my-owner-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: call-my-owner-back
+  minReadySeconds: 15
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: call-my-owner-back
+    spec:
+      containers:
+        - image: ruslana/call_my_owner
+          imagePullPolicy: Always
+          name: call-my-owner-back
+          ports:
+            - containerPort: 9999

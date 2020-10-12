@@ -6,9 +6,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Document(collection = "users")
 public class UserAccount implements UserDetails {
@@ -20,18 +25,24 @@ public class UserAccount implements UserDetails {
     private String username;
     private String password;
     private String defaultEmail;
-    private String role;
+    private List<UserRole> roles;
+    private Set<GrantedAuthority> grantedAuthorities;
+    private boolean isEnabled = true; //todo set false initially, then set true when email confirmation received
 
     public UserAccount(String username, String password, String defaultEmail) {
         this.username = username;
         this.password = password;
         this.defaultEmail = defaultEmail;
-        this.role = UserRole.USER.toString();
+        this.roles = Collections.singletonList(UserRole.USER);
+        this.grantedAuthorities = roles
+                .stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return this.grantedAuthorities;
     }
 
     @Override
@@ -61,7 +72,7 @@ public class UserAccount implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.isEnabled;
     }
 
     public ObjectId getId() {
@@ -76,12 +87,12 @@ public class UserAccount implements UserDetails {
         this.password = password;
     }
 
-    public String getRole() {
-        return role;
+    public List<UserRole> getRoles() {
+        return roles;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setRoles(List<UserRole> roles) {
+        this.roles = roles;
     }
 
     public String getDefaultEmail() {
@@ -90,5 +101,17 @@ public class UserAccount implements UserDetails {
 
     public void setDefaultEmail(String defaultEmail) {
         this.defaultEmail = defaultEmail;
+    }
+
+    public Set<GrantedAuthority> getGrantedAuthorities() {
+        return grantedAuthorities;
+    }
+
+    public void setGrantedAuthorities(Set<GrantedAuthority> grantedAuthorities) {
+        this.grantedAuthorities = grantedAuthorities;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
     }
 }

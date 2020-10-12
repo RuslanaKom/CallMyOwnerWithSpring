@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: call-my-owner-front
+  labels:
+    app: call-my-owner-front
+spec:
+  containers:
+    - image: ruslana/call_my_owner_front
+      name: call-my-owner-front
+      ports:
+        - containerPort: 80
