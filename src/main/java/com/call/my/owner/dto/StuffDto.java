@@ -1,13 +1,13 @@
 package com.call.my.owner.dto;
 
 import com.call.my.owner.entities.Stuff;
+import org.bson.types.ObjectId;
 
 public class StuffDto {
 
     private String id;
     private String userId;
     private String stuffName;
-    private String contactEmail;
     private String defaultMessage;
 
     public String getId() {
@@ -29,14 +29,29 @@ public class StuffDto {
     public StuffDto() {
     }
 
-    public StuffDto(Stuff stuff) {
-        this.id = stuff.getId()
-                .toHexString();
-        this.userId = stuff.getUserId()
-                .toHexString();
-        this.stuffName = stuff.getStuffName();
-        this.contactEmail = stuff.getContactEmail();
-        this.defaultMessage = stuff.getDefaultMessage();
+
+    public static StuffDto toDto(Stuff stuff) {
+        StuffDto stuffDto = new StuffDto();
+        stuffDto.setId(stuff.getId()
+                .toHexString());
+        stuffDto.setUserId(stuff.getUserId()
+                .toHexString());
+        stuffDto.setStuffName(stuff.getStuffName());
+        stuffDto.setDefaultMessage(stuff.getDefaultMessage());
+        return stuffDto;
+    }
+
+    public static Stuff fromDto(StuffDto stuffDto) {
+        Stuff stuff = new Stuff();
+        if (stuffDto.getId() != null) {
+            stuff.setId(new ObjectId(stuffDto.getId()));
+        }
+        if (stuffDto.getUserId() != null) {
+            stuff.setUserId(new ObjectId(stuffDto.getUserId()));
+        }
+        stuff.setStuffName(stuffDto.getStuffName());
+        stuff.setDefaultMessage(stuffDto.getDefaultMessage());
+        return stuff;
     }
 
     public String getStuffName() {
@@ -45,14 +60,6 @@ public class StuffDto {
 
     public void setStuffName(String stuffName) {
         this.stuffName = stuffName;
-    }
-
-    public String getContactEmail() {
-        return contactEmail;
-    }
-
-    public void setContactEmail(String contactEmail) {
-        this.contactEmail = contactEmail;
     }
 
     public String getDefaultMessage() {

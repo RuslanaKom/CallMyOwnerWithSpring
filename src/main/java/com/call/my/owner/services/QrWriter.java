@@ -7,6 +7,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -19,9 +21,10 @@ import java.util.Map;
 
 @Service
 public class QrWriter {
+    private static final Logger logger = LoggerFactory.getLogger(QrWriter.class);
 
     public File createStuffQr(Stuff stuff) {
-        String url = "http://localhost:9999/contact/" + stuff.getId();
+        String url = "http://localhost:9999/loststuff/contact/" + stuff.getId();
         return createQRCode(url);
     }
 
@@ -35,7 +38,7 @@ public class QrWriter {
             Map<EncodeHintType, Object> hintMap = new EnumMap<EncodeHintType, Object>(EncodeHintType.class);
             hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
 
-            // Now with zxing version 3.2.1 you could change border size (white border size to just 1)
+            //change border size (white border size to just 1)
             hintMap.put(EncodeHintType.MARGIN, 1); /* default = 4 */
             hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
 
@@ -64,7 +67,7 @@ public class QrWriter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("\n\nYou have successfully created QR Code.");
+        logger.info("QR code successfully created");
         return myFile;
     }
 

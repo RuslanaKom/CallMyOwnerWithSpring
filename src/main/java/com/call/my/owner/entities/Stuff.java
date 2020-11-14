@@ -12,24 +12,25 @@ public class Stuff {
     private ObjectId id;
     private ObjectId userId;
     private String stuffName;
-    private String contactEmail;
     private String defaultMessage;
 
     public Stuff(ObjectId id, ObjectId userId, String stuffName, String contactEmail, String defaultMessage) {
         this.id = id;
         this.userId = userId;
         this.stuffName = stuffName;
-        this.contactEmail = contactEmail;
         this.defaultMessage = defaultMessage;
     }
 
     public Stuff(String stuffName, String contactEmail, String defaultMessage) {
         this.stuffName = stuffName;
-        this.contactEmail = contactEmail;
         this.defaultMessage = defaultMessage;
     }
 
     public Stuff() {
+    }
+
+    public void setId(ObjectId id) {
+        this.id = id;
     }
 
     public ObjectId getId() {
@@ -50,14 +51,6 @@ public class Stuff {
 
     public void setStuffName(String stuffName) {
         this.stuffName = stuffName;
-    }
-
-    public String getContactEmail() {
-        return contactEmail;
-    }
-
-    public void setContactEmail(String contactEmail) {
-        this.contactEmail = contactEmail;
     }
 
     public String getDefaultMessage() {
