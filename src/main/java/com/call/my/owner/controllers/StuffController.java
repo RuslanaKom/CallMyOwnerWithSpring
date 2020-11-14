@@ -71,10 +71,10 @@ public class StuffController {
 
     @GetMapping
     public @ResponseBody
-    ResponseEntity getStuffByUser() throws NoLoggedInUserException {
+    ResponseEntity getStuffByUser(@RequestParam int offset, @RequestParam int size, @RequestParam String direction) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
-            return ok(stuffService.getStuffByUser(userAccount));
+            return ok(stuffService.getStuffByUser(userAccount, offset, size, direction));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

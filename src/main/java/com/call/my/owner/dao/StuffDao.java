@@ -2,13 +2,13 @@ package com.call.my.owner.dao;
 
 import com.call.my.owner.entities.Stuff;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
-
-import java.util.List;
 
 public interface StuffDao extends MongoRepository<Stuff, ObjectId> {
 
-    List<Stuff> findByUserId(ObjectId userId);
+    Page<Stuff> findByUserId(ObjectId userId, Pageable pageable);
 
     boolean existsByUserIdAndStuffName(ObjectId userId, String stuffName);
 

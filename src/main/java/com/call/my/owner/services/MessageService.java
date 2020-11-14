@@ -6,8 +6,12 @@ import com.call.my.owner.entities.Message;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,10 +37,12 @@ public class MessageService {
         messageDao.save(message);
     }
 
-public List<MessageDto> getMessagesByUserAndStuff(ObjectId userId, String stuffId){
-        return messageDao.findByUserIdAndStuffId(userId, new ObjectId(stuffId))
+    public List<MessageDto> getMessagesByUserAndStuff(ObjectId userId, String stuffId, int offset, int size, String direction) {
+        PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
+        return  messageDao.findByUserIdAndStuffId(userId, new ObjectId(stuffId), request)
+                .getContent()
                 .stream()
                 .map(MessageDto::toDto)
                 .collect(Collectors.toList());
-}
+    }
 }

@@ -10,6 +10,8 @@ import com.call.my.owner.exceptions.NoStuffFoundException;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -46,7 +48,7 @@ public class StuffService {
     }
 
     private void validateExistsByIdAndUserId(ObjectId stuffId, ObjectId userId) throws NoStuffFoundException {
-        if(!stuffDao.existsByIdAndUserId(stuffId, userId)){
+        if (!stuffDao.existsByIdAndUserId(stuffId, userId)) {
             throw new NoStuffFoundException("No stuff with this id found for logged user");
         }
     }
@@ -57,9 +59,12 @@ public class StuffService {
             throw new DuplicateStuffNameException();
         }
     }
-    public List<StuffDto> getStuffByUser(UserAccount userAccount) {
-        List<Stuff> stuffList = stuffDao.findByUserId(userAccount.getId());
-        return stuffList.stream()
+
+    public List<StuffDto> getStuffByUser(UserAccount userAccount, int offset, int size, String direction) {
+        PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "stuffName"));
+        return stuffDao.findByUserId(userAccount.getId(), request)
+                .getContent()
+                .stream()
                 .map(s -> StuffDto.toDto(s))
                 .collect(Collectors.toList());
     }

@@ -49,7 +49,7 @@ public class StuffDto {
         if (stuffDto.getUserId() != null) {
             stuff.setUserId(new ObjectId(stuffDto.getUserId()));
         }
-        stuff.setStuffName(stuffDto.getStuffName());
+        stuff.setStuffName(stuffDto.getStuffName().substring(0, 1).toUpperCase() + stuffDto.getStuffName().substring(1).toLowerCase());
         stuff.setDefaultMessage(stuffDto.getDefaultMessage());
         return stuff;
     }

@@ -33,10 +33,11 @@ public class MessageController {
 
     @GetMapping
     public @ResponseBody
-    ResponseEntity getMessages(@RequestParam String stuffId) throws NoLoggedInUserException {
+    ResponseEntity getMessages(@RequestParam String stuffId, @RequestParam int offset, @RequestParam int size, @RequestParam String direction)
+            throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
-            return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId));
+            return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId, offset, size, direction));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
