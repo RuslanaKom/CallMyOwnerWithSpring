@@ -1,5 +1,6 @@
 package com.call.my.owner.services;
 
+import com.call.my.owner.dao.MessageDao;
 import com.call.my.owner.dao.StuffDao;
 import com.call.my.owner.dto.StuffDto;
 import com.call.my.owner.entities.Stuff;
@@ -26,11 +27,13 @@ public class StuffService {
     private static final Logger logger = LoggerFactory.getLogger(StuffService.class);
 
     private final StuffDao stuffDao;
+    private final MessageDao messageDao;
     private final UserAccountService userAccountService;
     private final QrWriter qrWriter;
 
-    public StuffService(StuffDao stuffDao, UserAccountService userAccountService, QrWriter qrWriter) {
+    public StuffService(StuffDao stuffDao, MessageDao messageDao, UserAccountService userAccountService, QrWriter qrWriter) {
         this.stuffDao = stuffDao;
+        this.messageDao = messageDao;
         this.userAccountService = userAccountService;
         this.qrWriter = qrWriter;
     }
@@ -104,6 +107,8 @@ public class StuffService {
     }
 
     public void deleteStuffById(String stuffId) {
-        stuffDao.deleteById(new ObjectId(stuffId));
+        ObjectId stuffIdObject = new ObjectId(stuffId);
+        stuffDao.deleteById(stuffIdObject);
+        messageDao.deleteByStuffId(stuffIdObject);
     }
 }
