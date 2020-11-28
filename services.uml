@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>com.call.my.owner.services</OriginalElement>
+  <nodes>
+    <node x="671.5" y="0.0">com.call.my.owner.controllers.UserController</node>
+    <node x="10.322656250000023" y="350.0">com.call.my.owner.controllers.StuffController</node>
+    <node x="211.92578125" y="200.0">com.call.my.owner.services.StuffService</node>
+    <node x="423.0625" y="350.0">com.call.my.owner.controllers.MessageController</node>
+    <node x="1153.5" y="0.0">com.call.my.owner.services.SpringMailSender</node>
+    <node x="285.42578125" y="112.0">com.call.my.owner.services.QrWriter</node>
+    <node x="850.9839843750001" y="100.0">com.call.my.owner.services.UserAccountService</node>
+    <node x="639.73828125" y="200.0">com.call.my.owner.services.MessageService</node>
+    <node x="0.0" y="212.0">com.call.my.owner.services.AutenticationService</node>
+    <node x="794.0625" y="350.0">com.call.my.owner.controllers.ContactOwnerController</node>
+  </nodes>
+  <notes />
+  <edges />
+  <settings layout="Hierarchic Group" zoom="0.7621082621082621" x="692.0" y="200.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

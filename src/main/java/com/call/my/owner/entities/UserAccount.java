@@ -27,7 +27,7 @@ public class UserAccount implements UserDetails {
     private String defaultEmail;
     private List<UserRole> roles;
     private Set<GrantedAuthority> grantedAuthorities;
-    private boolean isEnabled = true; //todo set false initially, then set true when email confirmation received
+    private boolean isEnabled = false;
 
     public UserAccount(String username, String password, String defaultEmail) {
         this.username = username;

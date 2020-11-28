@@ -34,15 +34,36 @@ public class MessageService {
         message.setUserId(userId);
         message.setStuffName(stuffName);
         message.setReceivedDate(LocalDateTime.now());
+        message.setNew(true);
         messageDao.save(message);
     }
 
     public List<MessageDto> getMessagesByUserAndStuff(ObjectId userId, String stuffId, int offset, int size, String direction) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
-        return  messageDao.findByUserIdAndStuffId(userId, new ObjectId(stuffId), request)
+        return messageDao.findByUserIdAndStuffId(userId, new ObjectId(stuffId), request)
                 .getContent()
                 .stream()
                 .map(MessageDto::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public void updateMessagesAsShown(List<String> shownMessagesIds) {
+        List<ObjectId> ids = shownMessagesIds.stream()
+                .map(ObjectId::new)
+                .collect(Collectors.toList());
+        messageDao.findByIdIn(ids)
+                .stream()
+                .forEach(message -> {
+                    message.setNew(false);
+                    messageDao.save(message);
+                });
+    }
+
+    public Long countMessagesByUser(ObjectId userId) {
+        return messageDao.countByUserId(userId);
+    }
+
+    public boolean newMessagesExist(ObjectId stuffId, ObjectId userId) {
+        return messageDao.existsByStuffIdAndUserIdAndIsNew(stuffId, userId, true);
     }
 }

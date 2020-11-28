@@ -2,6 +2,7 @@ package com.call.my.owner.entities;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -12,11 +13,14 @@ public class Message {
     @Id
     private ObjectId id;
 
+    @Indexed
     private ObjectId userId;
+    @Indexed
     private ObjectId stuffId;
     private String stuffName;
     private String messageText;
     private LocalDateTime receivedDate;
+    private boolean isNew;
 
     public ObjectId getId() {
         return id;
@@ -64,5 +68,13 @@ public class Message {
 
     public void setReceivedDate(LocalDateTime receivedDate) {
         this.receivedDate = receivedDate;
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean aNew) {
+        isNew = aNew;
     }
 }
