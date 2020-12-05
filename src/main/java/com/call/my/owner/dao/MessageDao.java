@@ -17,7 +17,7 @@ public interface MessageDao extends MongoRepository<Message, ObjectId> {
 
     List<Message> findByIdIn(List<ObjectId> ids);
 
-    Long countByUserId(ObjectId userId);
+    Long countByUserIdAndStuffId(ObjectId userId,ObjectId stuffId);
 
     boolean existsByStuffIdAndUserIdAndIsNew(ObjectId stuffId, ObjectId userId, boolean isNew);
 }

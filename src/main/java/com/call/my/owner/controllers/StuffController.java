@@ -71,7 +71,9 @@ public class StuffController {
 
     @GetMapping
     public @ResponseBody
-    ResponseEntity getStuffByUser(@RequestParam int offset, @RequestParam int size, @RequestParam String direction) throws NoLoggedInUserException {
+    ResponseEntity getStuffByUser(@RequestParam int offset,
+                                  @RequestParam int size,
+                                  @RequestParam String direction) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
             return ok(stuffService.getStuffByUser(userAccount, offset, size, direction));
@@ -104,11 +106,21 @@ public class StuffController {
 
     @GetMapping("/qr")
     public @ResponseBody
-    ResponseEntity generateQr( @RequestParam String stuffId) {
+    ResponseEntity generateQr(@RequestParam String stuffId) {
         System.out.println("QR generation");
         try {
             UserAccount userAccount = autenticationService.getUser();
             return ResponseEntity.status(HttpStatus.OK).body(stuffService.generateQr(userAccount, stuffId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity countStuffByUser(){
+        try {
+            UserAccount userAccount = autenticationService.getUser();
+            return ok(stuffService.countStuffByUser(userAccount.getId()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

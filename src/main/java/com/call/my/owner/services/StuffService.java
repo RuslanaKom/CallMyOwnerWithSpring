@@ -39,26 +39,26 @@ public class StuffService {
     }
 
     public Stuff createUpdateStuff(UserAccount userAccount, StuffDto stuffDto) throws Exception {
+        Stuff stuff = StuffDto.fromDto(stuffDto);
         if (stuffDto.getId() != null) {
             validateExistsByIdAndUserId(new ObjectId(stuffDto.getId()), userAccount.getId());
         } else {
-            validateNoDuplicateName(stuffDto.getStuffName(), userAccount.getId());
+            validateNoDuplicateName(stuff.getStuffName(), userAccount.getId());
         }
-        Stuff stuff = StuffDto.fromDto(stuffDto);
         stuff.setUserId(userAccount.getId());
-        logger.info("Adding some more stuff to user");
+        logger.info("Adding some more stuff to user.");
         return stuffDao.save(stuff);
     }
 
     private void validateExistsByIdAndUserId(ObjectId stuffId, ObjectId userId) throws NoStuffFoundException {
         if (!stuffDao.existsByIdAndUserId(stuffId, userId)) {
-            throw new NoStuffFoundException("No stuff with this id found for logged user");
+            throw new NoStuffFoundException("No stuff with this id found for logged user.");
         }
     }
 
     private void validateNoDuplicateName(String stuffName, ObjectId userId) throws DuplicateStuffNameException {
         if (stuffDao.existsByUserIdAndStuffName(userId, stuffName)) {
-            logger.info("Stuff with such name already exists");
+            logger.info("Stuff with this name already exists.");
             throw new DuplicateStuffNameException();
         }
     }
@@ -88,17 +88,17 @@ public class StuffService {
 
     private Stuff findStuffByIdAndUser(ObjectId stuffId, UserAccount userAccount) throws NoStuffFoundException {
         Stuff stuff = stuffDao.findById(stuffId)
-                .orElseThrow(() -> new NoStuffFoundException("No stuff with this id found"));
+                .orElseThrow(() -> new NoStuffFoundException("No stuff with this id found."));
         if (!stuff.getUserId()
                 .equals(userAccount.getId())) {
-            throw new NoStuffFoundException("No stuff with this id found for logged user");
+            throw new NoStuffFoundException("No stuff with this id found for logged user.");
         }
         return stuff;
     }
 
     public Stuff getStuffById(String stuffId) throws NoStuffFoundException {
         return stuffDao.findById(new ObjectId(stuffId))
-                .orElseThrow(() -> new NoStuffFoundException("Nothing found"));
+                .orElseThrow(() -> new NoStuffFoundException("This stuff either was deleted by owner or never existed."));
     }
 
     public File generateQr(UserAccount userAccount, String stuffId) throws NoStuffFoundException {
@@ -110,5 +110,9 @@ public class StuffService {
         ObjectId stuffIdObject = new ObjectId(stuffId);
         stuffDao.deleteById(stuffIdObject);
         messageDao.deleteByStuffId(stuffIdObject);
+    }
+
+    public long  countStuffByUser(ObjectId userId){
+        return stuffDao.countByUserId(userId);
     }
 }

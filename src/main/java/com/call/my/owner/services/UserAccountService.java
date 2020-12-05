@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 public class UserAccountService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private static final String USERNAME_REGEX = "^[a-z0-9_-]{3,15}$";
 
     private final UserDao userDao;
     private final SpringMailSender springMailSender;
@@ -64,14 +63,6 @@ public class UserAccountService implements UserDetailsService {
         logger.info("Searching for user with id {}", id);
         return userDao.findById(new ObjectId(id))
                 .orElseThrow(() -> new UserNotFoundException());
-    }
-
-    public void validateUserInput(UserAccountDto userAccountDto) {
-        final Pattern pattern = Pattern.compile(USERNAME_REGEX);
-        final Matcher matcher = pattern.matcher(userAccountDto.getUsername());
-        if (!matcher.find()) {
-            throw new InvalidParameterException();
-        }
     }
 
     public UserAccount loadUserByEmail(String email) {

@@ -55,11 +55,11 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/user/count")
-    public ResponseEntity getMessagesCount() throws NoLoggedInUserException {
+    @GetMapping("/count")
+    public ResponseEntity getMessagesCount(@RequestParam String stuffId) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
-            return ok(messageService.countMessagesByUser(userAccount.getId()));
+            return ok(messageService.countMessagesByUserAndStuff(userAccount.getId(), new ObjectId(stuffId) ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

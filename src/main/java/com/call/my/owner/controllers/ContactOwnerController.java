@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import static org.springframework.http.ResponseEntity.badRequest;
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
@@ -39,20 +40,28 @@ public class ContactOwnerController {
     }
 
     @GetMapping("/{id}")
-    public RedirectView openContactForm(@PathVariable String id, RedirectAttributes redirectAttributes) throws NoStuffFoundException {
-        Stuff stuff = stuffService.getStuffById(id);
-        return new RedirectView("http://localhost:4200/contact/" + id);
+    public RedirectView openContactForm(@PathVariable String id, RedirectAttributes redirectAttributes) {
+        try {
+            stuffService.getStuffById(id);
+            return new RedirectView("http://localhost:4200/contact/" + id);
+        } catch (NoStuffFoundException e) {
+            return new RedirectView("http://localhost:4200/contact/0");
+        }
     }
 
     @PostMapping("/sendmessage")
     public @ResponseBody
-    ResponseEntity contactOwner(@RequestParam String stuffId, @RequestBody String message) throws NoStuffFoundException, UserNotFoundException {
-        Stuff stuff = stuffService.getStuffById(stuffId);
-        UserAccount userAccount = userService.getUserById(stuff.getUserId()
-                .toString());
-        messageService.saveMessage(message, stuff.getId(), stuff.getStuffName(), userAccount.getId());
-        springMailSender.sendMessage(userAccount.getDefaultEmail(), stuff.getStuffName(), message);
-        return ok().build();
+    ResponseEntity contactOwner(@RequestParam String stuffId, @RequestBody String message) {
+        try {
+            Stuff stuff = stuffService.getStuffById(stuffId);
+            UserAccount userAccount = userService.getUserById(stuff.getUserId()
+                    .toString());
+            messageService.saveMessage(message, stuff.getId(), stuff.getStuffName(), userAccount.getId());
+            springMailSender.sendMessage(userAccount.getDefaultEmail(), stuff.getStuffName(), message);
+            return ok().build();
+        } catch (NoStuffFoundException | UserNotFoundException e){
+            return badRequest().body(e.getMessage());
+        }
     }
 
 

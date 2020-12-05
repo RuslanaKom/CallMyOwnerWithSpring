@@ -59,8 +59,8 @@ public class MessageService {
                 });
     }
 
-    public Long countMessagesByUser(ObjectId userId) {
-        return messageDao.countByUserId(userId);
+    public Long countMessagesByUserAndStuff(ObjectId userId, ObjectId stuffId) {
+        return messageDao.countByUserIdAndStuffId(userId, stuffId);
     }
 
     public boolean newMessagesExist(ObjectId stuffId, ObjectId userId) {

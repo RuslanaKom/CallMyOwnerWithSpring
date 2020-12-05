@@ -55,7 +55,6 @@ public class UserController {
     public @ResponseBody ResponseEntity<?> createUserAccount(@RequestBody UserAccountDto userAccountDto){
         logger.info("registering user");
         try {
-            userAccountService.validateUserInput(userAccountDto);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(userAccountService.createUserAccount(userAccountDto.toUserAccount(), false));
         } catch (Exception e) {
