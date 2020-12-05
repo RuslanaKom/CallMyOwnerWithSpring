@@ -8,6 +8,7 @@ import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.DuplicateStuffNameException;
 import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.exceptions.NoStuffFoundException;
+import com.call.my.owner.utils.CapitalLetterFormatUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,5 +115,15 @@ public class StuffService {
 
     public long  countStuffByUser(ObjectId userId){
         return stuffDao.countByUserId(userId);
+    }
+
+    public List<StuffDto> getStuffByUserAndName(UserAccount userAccount, int offset, int size, String direction, String stuffName) {
+        PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "stuffName"));
+        String formattedName = CapitalLetterFormatUtils.formatText(stuffName);
+        return stuffDao.findByUserIdAndStuffNameStartingWith(userAccount.getId(), formattedName, request)
+                .getContent()
+                .stream()
+                .map(s -> StuffDto.toDto(s))
+                .collect(Collectors.toList());
     }
 }

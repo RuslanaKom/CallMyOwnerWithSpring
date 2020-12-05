@@ -4,6 +4,7 @@ import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.services.AutenticationService;
 import com.call.my.owner.services.MessageService;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +34,16 @@ public class MessageController {
 
     @GetMapping
     public @ResponseBody
-    ResponseEntity getMessages(@RequestParam String stuffId, @RequestParam int offset, @RequestParam int size, @RequestParam String direction)
+    ResponseEntity getMessages(@RequestParam String stuffId, @RequestParam int offset, @RequestParam int size,
+                               @RequestParam String direction, @RequestParam String messageText)
             throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
-            return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId, offset, size, direction));
+            if (StringUtils.isBlank(messageText)) {
+                return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId, offset, size, direction));
+            } else {
+                return ok(messageService.getMessagesByUserAndStuffAndText(userAccount.getId(), stuffId, offset, size, direction, messageText));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -45,7 +51,7 @@ public class MessageController {
     }
 
     @PostMapping
-    public ResponseEntity updateShownMessages(@RequestBody List<String> shownMessagesIds){
+    public ResponseEntity updateShownMessages(@RequestBody List<String> shownMessagesIds) {
         try {
             messageService.updateMessagesAsShown(shownMessagesIds);
             return ok().build();
@@ -59,7 +65,7 @@ public class MessageController {
     public ResponseEntity getMessagesCount(@RequestParam String stuffId) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
-            return ok(messageService.countMessagesByUserAndStuff(userAccount.getId(), new ObjectId(stuffId) ));
+            return ok(messageService.countMessagesByUserAndStuff(userAccount.getId(), new ObjectId(stuffId)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

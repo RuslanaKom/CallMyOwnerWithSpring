@@ -66,4 +66,14 @@ public class MessageService {
     public boolean newMessagesExist(ObjectId stuffId, ObjectId userId) {
         return messageDao.existsByStuffIdAndUserIdAndIsNew(stuffId, userId, true);
     }
+
+    public Object getMessagesByUserAndStuffAndText(ObjectId userId, String stuffId, int offset, int size, String direction, String messageText) {
+        PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
+        return messageDao.findByUserIdAndStuffIdAndMessageTextContaining(userId, new ObjectId(stuffId), messageText, request)
+                .getContent()
+                .stream()
+                .map(MessageDto::toDto)
+                .collect(Collectors.toList());
+
+    }
 }

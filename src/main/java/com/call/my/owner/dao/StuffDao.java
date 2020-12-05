@@ -10,6 +10,8 @@ public interface StuffDao extends MongoRepository<Stuff, ObjectId> {
 
     Page<Stuff> findByUserId(ObjectId userId, Pageable pageable);
 
+    Page<Stuff> findByUserIdAndStuffNameStartingWith(ObjectId userId, String stuffName, Pageable pageable);
+
     boolean existsByUserIdAndStuffName(ObjectId userId, String stuffName);
 
     boolean existsByIdAndUserId(ObjectId stuffId, ObjectId userId);

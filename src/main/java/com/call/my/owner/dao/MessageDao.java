@@ -13,6 +13,8 @@ public interface MessageDao extends MongoRepository<Message, ObjectId> {
 
     Page<Message> findByUserIdAndStuffId(ObjectId userId, ObjectId stuffId, Pageable pageable);
 
+    Page<Message> findByUserIdAndStuffIdAndMessageTextContaining(ObjectId userId, ObjectId stuffId, String messageText, Pageable pageable);
+
     void deleteByStuffId(ObjectId stuffId);
 
     List<Message> findByIdIn(List<ObjectId> ids);

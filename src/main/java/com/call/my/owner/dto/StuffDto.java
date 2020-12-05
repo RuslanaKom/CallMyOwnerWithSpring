@@ -1,6 +1,7 @@
 package com.call.my.owner.dto;
 
 import com.call.my.owner.entities.Stuff;
+import com.call.my.owner.utils.CapitalLetterFormatUtils;
 import org.bson.types.ObjectId;
 
 public class StuffDto {
@@ -49,7 +50,7 @@ public class StuffDto {
         if (stuffDto.getUserId() != null) {
             stuff.setUserId(new ObjectId(stuffDto.getUserId()));
         }
-        stuff.setStuffName(stuffDto.getStuffName().substring(0, 1).toUpperCase() + stuffDto.getStuffName().substring(1).toLowerCase());
+        stuff.setStuffName(CapitalLetterFormatUtils.formatText(stuffDto.getStuffName()));
         stuff.setDefaultMessage(stuffDto.getDefaultMessage());
         return stuff;
     }

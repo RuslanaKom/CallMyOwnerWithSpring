@@ -5,6 +5,7 @@ import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.services.AutenticationService;
 import com.call.my.owner.services.StuffService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -63,9 +64,11 @@ public class StuffController {
     public @ResponseBody
     ResponseEntity getStuffDefaultMessage(@RequestParam String stuffId) {
         try {
-            return ok(stuffService.getStuffById(stuffId).getDefaultMessage());
+            return ok(stuffService.getStuffById(stuffId)
+                    .getDefaultMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 
@@ -73,12 +76,17 @@ public class StuffController {
     public @ResponseBody
     ResponseEntity getStuffByUser(@RequestParam int offset,
                                   @RequestParam int size,
-                                  @RequestParam String direction) throws NoLoggedInUserException {
+                                  @RequestParam String direction,
+                                  @RequestParam String stuffName) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
-            return ok(stuffService.getStuffByUser(userAccount, offset, size, direction));
+            if (StringUtils.isBlank(stuffName)) {
+                return ok(stuffService.getStuffByUser(userAccount, offset, size, direction));
+            }
+            return ok(stuffService.getStuffByUserAndName(userAccount, offset, size, direction, stuffName));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 
@@ -100,7 +108,8 @@ public class StuffController {
         try {
             return ok(stuffService.createQrForStuff(principal, stuffId));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 
@@ -110,19 +119,22 @@ public class StuffController {
         System.out.println("QR generation");
         try {
             UserAccount userAccount = autenticationService.getUser();
-            return ResponseEntity.status(HttpStatus.OK).body(stuffService.generateQr(userAccount, stuffId));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(stuffService.generateQr(userAccount, stuffId));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 
     @GetMapping("/count")
-    public ResponseEntity countStuffByUser(){
+    public ResponseEntity countStuffByUser() {
         try {
             UserAccount userAccount = autenticationService.getUser();
             return ok(stuffService.countStuffByUser(userAccount.getId()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
     }
 }
