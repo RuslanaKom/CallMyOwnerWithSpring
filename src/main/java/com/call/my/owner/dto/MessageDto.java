@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class MessageDto {
 
     private String id;
+    private String stuffName;
     private String messageText;
     private LocalDateTime receivedDate;
     private boolean isNew;
@@ -14,12 +15,20 @@ public class MessageDto {
     public static final MessageDto toDto(Message message) {
         MessageDto messageDto = new MessageDto();
         messageDto.setId(message.getId().toHexString());
+        messageDto.setStuffName(message.getStuffName());
         messageDto.setMessageText(message.getMessageText());
         messageDto.setReceivedDate(message.getReceivedDate());
         messageDto.setNew(message.isNew());
         return messageDto;
     }
 
+    public String getStuffName() {
+        return stuffName;
+    }
+
+    public void setStuffName(String stuffName) {
+        this.stuffName = stuffName;
+    }
 
     public String getMessageText() {
         return messageText;

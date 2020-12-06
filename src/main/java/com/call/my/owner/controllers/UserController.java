@@ -6,6 +6,8 @@ import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.UserNotFoundException;
 import com.call.my.owner.security.JwtAuthenticationResponse;
 import com.call.my.owner.security.JwtTokenProvider;
+import com.call.my.owner.services.AutenticationService;
+import com.call.my.owner.services.ConfirmationService;
 import com.call.my.owner.services.UserAccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.ResponseEntity.ok;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -31,11 +35,15 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserAccountService userAccountService;
     private final JwtTokenProvider tokenProvider;
+    private final AutenticationService autenticationService;
+    private final ConfirmationService confirmationService;
 
-    public UserController(AuthenticationManager authenticationManager, UserAccountService userAccountService, JwtTokenProvider tokenProvider) {
+    public UserController(AuthenticationManager authenticationManager, UserAccountService userAccountService, JwtTokenProvider tokenProvider, AutenticationService autenticationService, ConfirmationService confirmationService) {
         this.authenticationManager = authenticationManager;
         this.userAccountService = userAccountService;
         this.tokenProvider = tokenProvider;
+        this.autenticationService = autenticationService;
+        this.confirmationService = confirmationService;
     }
 
     @PostMapping("/signin")
@@ -45,14 +53,16 @@ public class UserController {
                         userLoginDto.getUsername(), userLoginDto.getPassword()
                 )
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext()
+                .setAuthentication(authentication);
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
         String jwt = tokenProvider.generateToken(userAccount.getUsername());                   // JWT TOKEN CREATION
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        return ok(new JwtAuthenticationResponse(jwt));
     }
 
     @PostMapping
-    public @ResponseBody ResponseEntity<?> createUserAccount(@RequestBody UserAccountDto userAccountDto){
+    public @ResponseBody
+    ResponseEntity<?> createUserAccount(@RequestBody UserAccountDto userAccountDto) {
         logger.info("registering user");
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -63,26 +73,35 @@ public class UserController {
         }
     }
 
-    @PostMapping("/confirm")
-   public ResponseEntity confirmRegistration(@RequestBody String userId) {
+    @PostMapping("/update")
+    public @ResponseBody
+    ResponseEntity<?> updateUserAccount(@RequestBody UserAccountDto userAccountDto) {
         try {
-            UserAccount userAccount = userAccountService.getUserById(userId);
-            userAccount.setEnabled(true);
-            userAccountService.saveUser(userAccount);
-            String jwt = tokenProvider.generateToken(userAccount.getUsername());
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            UserAccount userAccount = autenticationService.getUser();
+            return ok(userAccountService.updateUserAccount(userAccountDto, userAccount));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         }
-        catch(UserNotFoundException e){
+    }
+
+    @PostMapping("/confirm")
+    public ResponseEntity confirmRegistration(@RequestBody String unconfirmedEmailId) {
+        try {
+            String jwt = confirmationService.confirmEmail(unconfirmedEmailId);
+            return ok(new JwtAuthenticationResponse(jwt));
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         }
     }
 
     @GetMapping
-    public  @ResponseBody ResponseEntity<?> getUserById(@RequestParam String id) throws UserNotFoundException {
+    public @ResponseBody
+    ResponseEntity getUserProfile() throws UserNotFoundException {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(userAccountService.getUserById(id));
+            UserAccount userAccount = autenticationService.getUser();
+            return ok(UserAccountDto.toDto(userAccount));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -90,7 +109,8 @@ public class UserController {
     }
 
     @GetMapping("/health")
-    public @ResponseBody ResponseEntity<String> healthCheck(){
+    public @ResponseBody
+    ResponseEntity<String> healthCheck() {
         logger.info("App health check");
         return new ResponseEntity<String>("Hello, you!", HttpStatus.OK);
     }

@@ -74,6 +74,14 @@ public class MessageService {
                 .stream()
                 .map(MessageDto::toDto)
                 .collect(Collectors.toList());
-
     }
+
+    public List<MessageDto> getMessagesByUser(ObjectId userId, int offset, int size, String direction) {
+            PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
+            return messageDao.findByUserId(userId, request)
+                    .getContent()
+                    .stream()
+                    .map(MessageDto::toDto)
+                    .collect(Collectors.toList());
+        }
 }

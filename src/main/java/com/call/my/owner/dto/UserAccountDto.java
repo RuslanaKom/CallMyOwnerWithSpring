@@ -34,4 +34,11 @@ public class UserAccountDto {
     public UserAccount toUserAccount(){
         return new UserAccount(this.username, this.password, this.defaultEmail);
     }
+
+    public static UserAccountDto toDto(UserAccount userAccount){
+      UserAccountDto userAccountDto = new UserAccountDto();
+      userAccountDto.setUsername(userAccount.getUsername());
+      userAccountDto.setDefaultEmail(userAccount.getDefaultEmail());
+      return userAccountDto;
+    }
 }

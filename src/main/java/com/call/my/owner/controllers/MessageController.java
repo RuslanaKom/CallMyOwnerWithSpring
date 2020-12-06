@@ -39,11 +39,13 @@ public class MessageController {
             throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
+            if (StringUtils.isBlank(stuffId)) {
+                return ok(messageService.getMessagesByUser(userAccount.getId(), offset, size, direction));
+            }
             if (StringUtils.isBlank(messageText)) {
                 return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId, offset, size, direction));
-            } else {
-                return ok(messageService.getMessagesByUserAndStuffAndText(userAccount.getId(), stuffId, offset, size, direction, messageText));
             }
+            return ok(messageService.getMessagesByUserAndStuffAndText(userAccount.getId(), stuffId, offset, size, direction, messageText));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

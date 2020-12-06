@@ -3,9 +3,13 @@ package com.call.my.owner.services;
 import com.call.my.owner.controllers.UserController;
 import com.call.my.owner.dao.UserDao;
 import com.call.my.owner.dto.UserAccountDto;
+import com.call.my.owner.dto.UserAccountWithTokenDto;
 import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.DuplicateUserNameException;
 import com.call.my.owner.exceptions.UserNotFoundException;
+import com.call.my.owner.security.JwtAuthenticationResponse;
+import com.call.my.owner.security.JwtTokenProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +19,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.InvalidParameterException;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class UserAccountService implements UserDetailsService {
@@ -26,11 +27,13 @@ public class UserAccountService implements UserDetailsService {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserDao userDao;
-    private final SpringMailSender springMailSender;
+    private final ConfirmationService confirmationService;
+    private final JwtTokenProvider tokenProvider;
 
-    public UserAccountService(UserDao userDao, SpringMailSender springMailSender) {
+    public UserAccountService(UserDao userDao, ConfirmationService confirmationService, JwtTokenProvider tokenProvider) {
         this.userDao = userDao;
-        this.springMailSender = springMailSender;
+        this.confirmationService = confirmationService;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class UserAccountService implements UserDetailsService {
             }
             UserAccount savedUser = userDao.save(userAccount);
             if (!isEmailConfirmed) {
-                sendConfirmationEmail(savedUser);
+                confirmationService.sendConfirmationEmail(savedUser.getId(), savedUser.getDefaultEmail());
             }
             return savedUser;
         }
@@ -69,12 +72,20 @@ public class UserAccountService implements UserDetailsService {
         return userDao.findByDefaultEmail(email);
     }
 
-    private void sendConfirmationEmail(UserAccount savedUser) {
-        String fullMessage = "Please confirm you email by clicking the link http://localhost:4200/confirm/" + savedUser.getId();
-        springMailSender.sendMessage(savedUser.getDefaultEmail(), "Confirm you registration", fullMessage);
-    }
-
     public void saveUser(UserAccount userAccount) {
         userDao.save(userAccount);
+    }
+
+    public UserAccountWithTokenDto updateUserAccount(UserAccountDto userAccountDto, UserAccount userAccount) {
+        String currentEmail = userAccount.getDefaultEmail();
+        userAccount.setUsername(userAccountDto.getUsername());
+        if (!StringUtils.equalsIgnoreCase(currentEmail, userAccountDto.getDefaultEmail())) {
+            confirmationService.sendConfirmationEmail(userAccount.getId(), userAccountDto.getDefaultEmail());
+        }
+        userDao.save(userAccount);
+        UserAccountWithTokenDto userAccountWithTokenDto = new UserAccountWithTokenDto();
+        userAccountWithTokenDto.setAccessToken(new JwtAuthenticationResponse(tokenProvider.generateToken(userAccount.getUsername())));
+        userAccountWithTokenDto.setUserAccountDto(UserAccountDto.toDto(userAccount));
+        return userAccountWithTokenDto;
     }
 }
