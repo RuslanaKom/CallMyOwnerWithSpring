@@ -6,7 +6,10 @@ import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.services.AutenticationService;
 import com.call.my.owner.services.StuffService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
 
 import static org.springframework.http.ResponseEntity.ok;
 
@@ -102,25 +103,15 @@ public class StuffController {
         }
     }
 
-    @PostMapping("/qr")
-    public @ResponseBody
-    ResponseEntity createQrForStuff(Principal principal, @RequestBody String stuffId) {
-        try {
-            return ok(stuffService.createQrForStuff(principal, stuffId));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
-    }
-
     @GetMapping("/qr")
     public @ResponseBody
     ResponseEntity generateQr(@RequestParam String stuffId) {
         System.out.println("QR generation");
         try {
             UserAccount userAccount = autenticationService.getUser();
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(stuffService.generateQr(userAccount, stuffId));
+            return ok().contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=qr.pdf")
+                    .body(new ByteArrayResource(stuffService.generateQr(userAccount, stuffId)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

@@ -6,7 +6,6 @@ import com.call.my.owner.dto.StuffDto;
 import com.call.my.owner.entities.Stuff;
 import com.call.my.owner.entities.UserAccount;
 import com.call.my.owner.exceptions.DuplicateStuffNameException;
-import com.call.my.owner.exceptions.NoLoggedInUserException;
 import com.call.my.owner.exceptions.NoStuffFoundException;
 import com.call.my.owner.utils.CapitalLetterFormatUtils;
 import org.bson.types.ObjectId;
@@ -16,11 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.security.Principal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -32,12 +26,14 @@ public class StuffService {
     private final MessageDao messageDao;
     private final UserAccountService userAccountService;
     private final QrWriter qrWriter;
+    private final QrPdfGenerator qrPdfGenerator;
 
-    public StuffService(StuffDao stuffDao, MessageDao messageDao, UserAccountService userAccountService, QrWriter qrWriter) {
+    public StuffService(StuffDao stuffDao, MessageDao messageDao, UserAccountService userAccountService, QrWriter qrWriter, QrPdfGenerator qrPdfGenerator) {
         this.stuffDao = stuffDao;
         this.messageDao = messageDao;
         this.userAccountService = userAccountService;
         this.qrWriter = qrWriter;
+        this.qrPdfGenerator = qrPdfGenerator;
     }
 
     public Stuff createUpdateStuff(UserAccount userAccount, StuffDto stuffDto) throws Exception {
@@ -77,15 +73,6 @@ public class StuffService {
         return StuffDto.toDto(stuff);
     }
 
-    public File createQrForStuff(Principal principal, String stuffId) throws NoLoggedInUserException, NoStuffFoundException {
-        if (principal == null) {
-            throw new NoLoggedInUserException();
-        }
-        UserAccount userAccount = userAccountService.loadUserByUsername(principal.getName());
-        Stuff stuff = findStuffByIdAndUser(new ObjectId(stuffId), userAccount);
-        return qrWriter.createStuffQr(stuff);
-    }
-
     private Stuff findStuffByIdAndUser(ObjectId stuffId, UserAccount userAccount) throws NoStuffFoundException {
         Stuff stuff = stuffDao.findById(stuffId)
                 .orElseThrow(() -> new NoStuffFoundException("No stuff with this id found."));
@@ -101,9 +88,9 @@ public class StuffService {
                 .orElseThrow(() -> new NoStuffFoundException("This stuff either was deleted by owner or never existed."));
     }
 
-    public File generateQr(UserAccount userAccount, String stuffId) throws NoStuffFoundException {
+    public byte[]  generateQr(UserAccount userAccount, String stuffId) throws Exception {
         Stuff stuff = findStuffByIdAndUser(new ObjectId(stuffId), userAccount);
-        return qrWriter.createStuffQr(stuff);
+        return qrPdfGenerator.generatePdf(stuff);
     }
 
     public void deleteStuffById(String stuffId) {
