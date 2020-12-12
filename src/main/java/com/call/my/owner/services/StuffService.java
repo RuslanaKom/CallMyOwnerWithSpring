@@ -12,6 +12,7 @@ import com.call.my.owner.utils.CapitalLetterFormatUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -64,13 +65,11 @@ public class StuffService {
         }
     }
 
-    public List<StuffDto> getStuffByUser(UserAccount userAccount, int offset, int size, String direction) {
+    public Page<StuffDto> getStuffByUser(UserAccount userAccount, int offset, int size, String direction) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "stuffName"));
-        return stuffDao.findByUserId(userAccount.getId(), request)
-                .getContent()
-                .stream()
-                .map(s -> StuffDto.toDto(s))
-                .collect(Collectors.toList());
+        Page<StuffDto> fff =  stuffDao.findByUserId(userAccount.getId(), request)
+                .map(s -> StuffDto.toDto(s));
+        return fff;
     }
 
     public StuffDto getStuffById(UserAccount userAccount, String id) throws NoStuffFoundException {
@@ -113,17 +112,10 @@ public class StuffService {
         messageDao.deleteByStuffId(stuffIdObject);
     }
 
-    public long  countStuffByUser(ObjectId userId){
-        return stuffDao.countByUserId(userId);
-    }
-
-    public List<StuffDto> getStuffByUserAndName(UserAccount userAccount, int offset, int size, String direction, String stuffName) {
+    public Page<StuffDto> getStuffByUserAndName(UserAccount userAccount, int offset, int size, String direction, String stuffName) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "stuffName"));
         String formattedName = CapitalLetterFormatUtils.formatText(stuffName);
         return stuffDao.findByUserIdAndStuffNameStartingWith(userAccount.getId(), formattedName, request)
-                .getContent()
-                .stream()
-                .map(s -> StuffDto.toDto(s))
-                .collect(Collectors.toList());
+                .map(s -> StuffDto.toDto(s));
     }
 }

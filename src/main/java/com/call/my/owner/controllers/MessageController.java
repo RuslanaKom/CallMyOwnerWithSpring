@@ -63,17 +63,6 @@ public class MessageController {
         }
     }
 
-    @GetMapping("/count")
-    public ResponseEntity getMessagesCount(@RequestParam String stuffId) throws NoLoggedInUserException {
-        UserAccount userAccount = autenticationService.getUser();
-        try {
-            return ok(messageService.countMessagesByUserAndStuff(userAccount.getId(), new ObjectId(stuffId)));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
-    }
-
     @GetMapping("/exists/new")
     public ResponseEntity newMessagesExistsByUSerAndStuff(@RequestParam String stuffId) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();

@@ -38,7 +38,6 @@ public class UserAccountService implements UserDetailsService {
 
     @Override
     public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("searching for user by username");
         return Optional.ofNullable(userDao.findByUsername(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }

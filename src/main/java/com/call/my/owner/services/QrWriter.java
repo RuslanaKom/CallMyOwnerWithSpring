@@ -23,6 +23,12 @@ import java.util.Map;
 public class QrWriter {
     private static final Logger logger = LoggerFactory.getLogger(QrWriter.class);
 
+    private final QrPdfGenerator qrPdfGenerator;
+
+    public QrWriter(QrPdfGenerator qrPdfGenerator) {
+        this.qrPdfGenerator = qrPdfGenerator;
+    }
+
     public File createStuffQr(Stuff stuff) {
         String url = "http://localhost:9999/loststuff/contact/" + stuff.getId();
         return createQRCode(url);
@@ -62,9 +68,8 @@ public class QrWriter {
                 }
             }
             ImageIO.write(image, fileType, myFile);
-        } catch (WriterException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            qrPdfGenerator.generatePdf();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         logger.info("QR code successfully created");

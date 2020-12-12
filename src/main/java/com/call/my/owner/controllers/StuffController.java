@@ -126,15 +126,4 @@ public class StuffController {
                     .body(e.getMessage());
         }
     }
-
-    @GetMapping("/count")
-    public ResponseEntity countStuffByUser() {
-        try {
-            UserAccount userAccount = autenticationService.getUser();
-            return ok(stuffService.countStuffByUser(userAccount.getId()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
-    }
 }

@@ -16,5 +16,4 @@ public interface StuffDao extends MongoRepository<Stuff, ObjectId> {
 
     boolean existsByIdAndUserId(ObjectId stuffId, ObjectId userId);
 
-    Long countByUserId(ObjectId userId);
 }

@@ -38,13 +38,10 @@ public class MessageService {
         messageDao.save(message);
     }
 
-    public List<MessageDto> getMessagesByUserAndStuff(ObjectId userId, String stuffId, int offset, int size, String direction) {
+    public Page<MessageDto> getMessagesByUserAndStuff(ObjectId userId, String stuffId, int offset, int size, String direction) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
         return messageDao.findByUserIdAndStuffId(userId, new ObjectId(stuffId), request)
-                .getContent()
-                .stream()
-                .map(MessageDto::toDto)
-                .collect(Collectors.toList());
+                .map(MessageDto::toDto);
     }
 
     public void updateMessagesAsShown(List<String> shownMessagesIds) {
@@ -59,29 +56,19 @@ public class MessageService {
                 });
     }
 
-    public Long countMessagesByUserAndStuff(ObjectId userId, ObjectId stuffId) {
-        return messageDao.countByUserIdAndStuffId(userId, stuffId);
-    }
-
     public boolean newMessagesExist(ObjectId stuffId, ObjectId userId) {
         return messageDao.existsByStuffIdAndUserIdAndIsNew(stuffId, userId, true);
     }
 
-    public Object getMessagesByUserAndStuffAndText(ObjectId userId, String stuffId, int offset, int size, String direction, String messageText) {
+    public Page<MessageDto> getMessagesByUserAndStuffAndText(ObjectId userId, String stuffId, int offset, int size, String direction, String messageText) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
         return messageDao.findByUserIdAndStuffIdAndMessageTextContaining(userId, new ObjectId(stuffId), messageText, request)
-                .getContent()
-                .stream()
-                .map(MessageDto::toDto)
-                .collect(Collectors.toList());
+                .map(MessageDto::toDto);
     }
 
-    public List<MessageDto> getMessagesByUser(ObjectId userId, int offset, int size, String direction) {
+    public Page<MessageDto> getMessagesByUser(ObjectId userId, int offset, int size, String direction) {
             PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
             return messageDao.findByUserId(userId, request)
-                    .getContent()
-                    .stream()
-                    .map(MessageDto::toDto)
-                    .collect(Collectors.toList());
+                    .map(MessageDto::toDto);
         }
 }
