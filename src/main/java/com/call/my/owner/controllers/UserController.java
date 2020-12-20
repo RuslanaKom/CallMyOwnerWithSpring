@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,7 +37,9 @@ public class UserController {
     private final AutenticationService autenticationService;
     private final ConfirmationService confirmationService;
 
-    public UserController(AuthenticationManager authenticationManager, UserAccountService userAccountService, JwtTokenProvider tokenProvider, AutenticationService autenticationService, ConfirmationService confirmationService) {
+    public UserController(AuthenticationManager authenticationManager, UserAccountService userAccountService,
+                          JwtTokenProvider tokenProvider, AutenticationService autenticationService,
+                          ConfirmationService confirmationService) {
         this.authenticationManager = authenticationManager;
         this.userAccountService = userAccountService;
         this.tokenProvider = tokenProvider;
@@ -47,7 +48,7 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody UserLoginDto userLoginDto) {
+    public ResponseEntity authenticateUser(@RequestBody UserLoginDto userLoginDto) {
         Authentication authentication = authenticationManager.authenticate(         // AUTHENTICATION
                 new UsernamePasswordAuthenticationToken(
                         userLoginDto.getUsername(), userLoginDto.getPassword()
@@ -56,17 +57,18 @@ public class UserController {
         SecurityContextHolder.getContext()
                 .setAuthentication(authentication);
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
-        String jwt = tokenProvider.generateToken(userAccount.getUsername());                   // JWT TOKEN CREATION
+        String jwt = tokenProvider.generateToken(userAccount.getUsername());       // JWT TOKEN CREATION
         return ok(new JwtAuthenticationResponse(jwt));
     }
 
     @PostMapping
     public @ResponseBody
-    ResponseEntity<?> createUserAccount(@RequestBody UserAccountDto userAccountDto) {
-        logger.info("registering user");
+    ResponseEntity createUserAccount(@RequestBody UserAccountDto userAccountDto) {
+        logger.info("Registering new user");
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(userAccountService.createUserAccount(userAccountDto.toUserAccount(), false));
+                    .body(userAccountService.createUserAccount(userAccountDto.toUserAccount(),
+                            false));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

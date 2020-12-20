@@ -9,29 +9,35 @@
             text-align: center;
         }
         .title0 {
-            font-size: 35pt;
+            font-size: 30pt;
             margin-bottom: 20pt;
         }
-        .title1 {
+        .titleS {
             font-size: 15pt;
         }
-        .title2 {
+        .titleM {
             font-size: 25pt;
         }
-        .title3 {
+        .titleL {
             font-size: 35pt;
         }
-        .text1 {
+        .textS {
             font-size: 10pt;
         }
-        .text2 {
+        .textM {
             font-size: 15pt;
         }
-        .text3 {
+        .textL {
             font-size: 20pt;
         }
-        .empty {
-            margin-bottom: 15pt;
+        .imageS {
+            width: 80pt;
+        }
+        .imageM {
+            width: 130pt;
+        }
+        .imageL {
+            width: 200pt;
         }
     </style>
 </head>
@@ -40,21 +46,9 @@
     <div class="title0">${stuffname!}</div>
 </div>
 <div class="text-center">
-    <div class="title1">${headerphrase!}</div>
-    <img width="100px" src="${imgAsBase64}"/>
-    <div class="text1">loststuff.com</div>
-</div>
-<div class="empty"></div>
-<div class="text-center">
-    <div class="title2">${headerphrase!}</div>
-    <img width="200px" src="${imgAsBase64}"/>
-    <div class="text2">loststuff.com</div>
-</div>
-<div class="empty"></div>
-<div class="text-center">
-    <div class="title3">${headerphrase!}</div>
-    <img width="350px" src="${imgAsBase64}"/>
-    <div class="text3">loststuff.com</div>
+    <div class="${titleStyle}">${headerphrase!}</div>
+    <img class="${imageStyle}" src="${imgAsBase64}"/>
+    <div class="${textStyle}">loststuff.com</div>
 </div>
 </body>
 </html>

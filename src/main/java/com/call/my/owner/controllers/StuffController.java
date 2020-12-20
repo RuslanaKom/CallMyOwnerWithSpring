@@ -50,10 +50,10 @@ public class StuffController {
     @DeleteMapping
     public @ResponseBody
     ResponseEntity deleteStuff(@RequestParam String stuffId) throws NoLoggedInUserException {
-        System.out.println("removing item with id" + stuffId);
         UserAccount userAccount = autenticationService.getUser();
+        System.out.println("deletedelte");
         try {
-            stuffService.deleteStuffById(stuffId);
+            stuffService.deleteStuffByIdAndUser(userAccount.getId(), stuffId);
             return ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -105,13 +105,13 @@ public class StuffController {
 
     @GetMapping("/qr")
     public @ResponseBody
-    ResponseEntity generateQr(@RequestParam String stuffId) {
+    ResponseEntity generateQr(@RequestParam String stuffId, @RequestParam String size) {
         System.out.println("QR generation");
         try {
             UserAccount userAccount = autenticationService.getUser();
             return ok().contentType(MediaType.APPLICATION_PDF)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=qr.pdf")
-                    .body(new ByteArrayResource(stuffService.generateQr(userAccount, stuffId)));
+                    .body(new ByteArrayResource(stuffService.generateQr(userAccount, stuffId, size)));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

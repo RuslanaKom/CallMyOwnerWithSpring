@@ -1,8 +1,8 @@
 package com.call.my.owner.entities;
 
-import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="stuff")
@@ -10,18 +10,20 @@ public class Stuff {
 
     @Id
     private ObjectId id;
+    @Indexed
     private ObjectId userId;
+    @Indexed
     private String stuffName;
     private String defaultMessage;
 
-    public Stuff(ObjectId id, ObjectId userId, String stuffName, String contactEmail, String defaultMessage) {
+    public Stuff(ObjectId id, ObjectId userId, String stuffName, String defaultMessage) {
         this.id = id;
         this.userId = userId;
         this.stuffName = stuffName;
         this.defaultMessage = defaultMessage;
     }
 
-    public Stuff(String stuffName, String contactEmail, String defaultMessage) {
+    public Stuff(String stuffName, String defaultMessage) {
         this.stuffName = stuffName;
         this.defaultMessage = defaultMessage;
     }

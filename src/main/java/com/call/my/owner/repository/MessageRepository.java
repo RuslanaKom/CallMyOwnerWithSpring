@@ -1,4 +1,4 @@
-package com.call.my.owner.dao;
+package com.call.my.owner.repository;
 
 import com.call.my.owner.entities.Message;
 import org.bson.types.ObjectId;
@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface MessageDao extends MongoRepository<Message, ObjectId> {
+public interface MessageRepository extends MongoRepository<Message, ObjectId> {
 
     Page<Message> findByUserId(ObjectId userId, Pageable pageable);
 

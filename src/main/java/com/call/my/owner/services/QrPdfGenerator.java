@@ -12,9 +12,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,18 +27,17 @@ public class QrPdfGenerator {
         this.qrWriter = qrWriter;
     }
 
-    public byte[] generatePdf(Stuff stuff) throws Exception {
+    public byte[] generatePdf(Stuff stuff, String size) throws Exception {
         String imgAsBase64 = getBase64String(qrWriter.createStuffQr(stuff));
-
         Map<String, Object> variables = new HashMap<>();
+        variables.put("titleStyle", "title"+size);
+        variables.put("imageStyle", "image"+size);
+        variables.put("textStyle", "text"+size);
         variables.put("stuffname", stuff.getStuffName());
         variables.put("headerphrase", "Contact the owner");
         variables.put("imgAsBase64", imgAsBase64);
         String htmlFromTemplate = processTemplate(RECOURSE_INVOICE_FTL, variables);
-        byte[] byteArray =  generatePdfFromHtml(htmlFromTemplate);
-        OutputStream out = new FileOutputStream("qr/out.pdf");
-        out.write(byteArray);
-        out.close();
+        byte[] byteArray = generatePdfFromHtml(htmlFromTemplate);
         return byteArray;
     }
 
@@ -52,7 +49,8 @@ public class QrPdfGenerator {
 
     private String processTemplate(String templateName, Map<String, Object> model) {
         try {
-            Template template = freeMarkerConfigurer.getConfiguration().getTemplate(templateName, "UTF-8");
+            Template template = freeMarkerConfigurer.getConfiguration()
+                    .getTemplate(templateName, "UTF-8");
             return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
         } catch (TemplateException | IOException e) {
             throw new RuntimeException(e);

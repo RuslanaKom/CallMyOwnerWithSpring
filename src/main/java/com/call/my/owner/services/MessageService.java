@@ -1,6 +1,6 @@
 package com.call.my.owner.services;
 
-import com.call.my.owner.dao.MessageDao;
+import com.call.my.owner.repository.MessageRepository;
 import com.call.my.owner.dto.MessageDto;
 import com.call.my.owner.entities.Message;
 import org.bson.types.ObjectId;
@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,10 +20,10 @@ public class MessageService {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageService.class);
 
-    private final MessageDao messageDao;
+    private final MessageRepository messageRepository;
 
-    public MessageService(MessageDao messageDao) {
-        this.messageDao = messageDao;
+    public MessageService(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
     }
 
     public void saveMessage(String messageText, ObjectId stuffId, String stuffName, ObjectId userId) {
@@ -35,12 +34,12 @@ public class MessageService {
         message.setStuffName(stuffName);
         message.setReceivedDate(LocalDateTime.now());
         message.setNew(true);
-        messageDao.save(message);
+        messageRepository.save(message);
     }
 
     public Page<MessageDto> getMessagesByUserAndStuff(ObjectId userId, String stuffId, int offset, int size, String direction) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
-        return messageDao.findByUserIdAndStuffId(userId, new ObjectId(stuffId), request)
+        return messageRepository.findByUserIdAndStuffId(userId, new ObjectId(stuffId), request)
                 .map(MessageDto::toDto);
     }
 
@@ -48,27 +47,27 @@ public class MessageService {
         List<ObjectId> ids = shownMessagesIds.stream()
                 .map(ObjectId::new)
                 .collect(Collectors.toList());
-        messageDao.findByIdIn(ids)
+        messageRepository.findByIdIn(ids)
                 .stream()
                 .forEach(message -> {
                     message.setNew(false);
-                    messageDao.save(message);
+                    messageRepository.save(message);
                 });
     }
 
     public boolean newMessagesExist(ObjectId stuffId, ObjectId userId) {
-        return messageDao.existsByStuffIdAndUserIdAndIsNew(stuffId, userId, true);
+        return messageRepository.existsByStuffIdAndUserIdAndIsNew(stuffId, userId, true);
     }
 
     public Page<MessageDto> getMessagesByUserAndStuffAndText(ObjectId userId, String stuffId, int offset, int size, String direction, String messageText) {
         PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
-        return messageDao.findByUserIdAndStuffIdAndMessageTextContaining(userId, new ObjectId(stuffId), messageText, request)
+        return messageRepository.findByUserIdAndStuffIdAndMessageTextContaining(userId, new ObjectId(stuffId), messageText, request)
                 .map(MessageDto::toDto);
     }
 
     public Page<MessageDto> getMessagesByUser(ObjectId userId, int offset, int size, String direction) {
             PageRequest request = PageRequest.of(offset, size, Sort.by(Sort.Direction.valueOf(direction), "receivedDate"));
-            return messageDao.findByUserId(userId, request)
+            return messageRepository.findByUserId(userId, request)
                     .map(MessageDto::toDto);
         }
 }

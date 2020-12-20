@@ -20,20 +20,22 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtTokenProvider jwtTokenProvider;
     private final UserAccountService userAccountService;
 
-    public CustomAuthenticationSuccessHandler(@Value("${app.front.url}") String baseBackOfficeUrl, JwtTokenProvider jwtTokenProvider,
+    public CustomAuthenticationSuccessHandler(@Value("${app.front.url}") String baseUrl,
+                                              JwtTokenProvider jwtTokenProvider,
                                               UserAccountService userAccountService) {
-        this.baseFrontUrl = baseBackOfficeUrl;
+        this.baseFrontUrl = baseUrl;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userAccountService = userAccountService;
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+    public void onAuthenticationSuccess(HttpServletRequest request,
+                                        HttpServletResponse response,
+                                        Authentication authentication)
             throws IOException {
         OidcUser principal = (OidcUser) authentication.getPrincipal();
         UserAccount userAccount = userAccountService.loadUserByEmail(principal.getEmail());
         String token = jwtTokenProvider.generateToken(userAccount.getUsername());
         getRedirectStrategy().sendRedirect(request, response, baseFrontUrl + "/auth/" + token);
     }
-
 }

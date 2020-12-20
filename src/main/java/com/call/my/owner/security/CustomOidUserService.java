@@ -19,7 +19,8 @@ import org.springframework.util.Assert;
 public class CustomOidUserService extends OidcUserService {
 
     private final UserAccountService userAccountService;
-    private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
+    private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService =
+            new DefaultOAuth2UserService();
 
     public CustomOidUserService(UserAccountService userAccountService) {
         this.userAccountService = userAccountService;
@@ -34,10 +35,9 @@ public class CustomOidUserService extends OidcUserService {
                 .get("email");
         UserAccount userAccount = userAccountService.loadUserByEmail(email);
         if (userAccount == null) {
-            userAccount = userAccountService.createUserAccount(new UserAccount(email, new ObjectId().toHexString(), email), true);
+            userAccount = userAccountService.createUserAccount(
+                    new UserAccount(email, new ObjectId().toHexString(), email), true);
         }
-        DefaultOidcUser user = new DefaultOidcUser(userAccount.getAuthorities(), userRequest.getIdToken());
-        return user;
+        return new DefaultOidcUser(userAccount.getAuthorities(), userRequest.getIdToken());
     }
-
 }

@@ -1,7 +1,7 @@
 package com.call.my.owner.services;
 
 import com.call.my.owner.controllers.UserController;
-import com.call.my.owner.dao.UserDao;
+import com.call.my.owner.repository.UserRepository;
 import com.call.my.owner.dto.UserAccountDto;
 import com.call.my.owner.dto.UserAccountWithTokenDto;
 import com.call.my.owner.entities.UserAccount;
@@ -26,53 +26,51 @@ public class UserAccountService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
     private final ConfirmationService confirmationService;
     private final JwtTokenProvider tokenProvider;
 
-    public UserAccountService(UserDao userDao, ConfirmationService confirmationService, JwtTokenProvider tokenProvider) {
-        this.userDao = userDao;
+    public UserAccountService(UserRepository userRepository, ConfirmationService confirmationService, JwtTokenProvider tokenProvider) {
+        this.userRepository = userRepository;
         this.confirmationService = confirmationService;
         this.tokenProvider = tokenProvider;
     }
 
     @Override
     public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
-        return Optional.ofNullable(userDao.findByUsername(username))
+        return Optional.ofNullable(userRepository.findByUsername(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public UserAccount createUserAccount(UserAccount userAccount, boolean isEmailConfirmed) throws DuplicateUserNameException {
-        try {
-            this.loadUserByUsername(userAccount.getUsername());
-        } catch (UsernameNotFoundException e) {
-            PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-            userAccount.setPassword(encoder.encode(userAccount.getPassword()));
-            logger.info("Creating new user account for user {}", userAccount.getUsername());
-            if (isEmailConfirmed) {
-                userAccount.setEnabled(true);
-            }
-            UserAccount savedUser = userDao.save(userAccount);
-            if (!isEmailConfirmed) {
-                confirmationService.sendConfirmationEmail(savedUser.getId(), savedUser.getDefaultEmail());
-            }
-            return savedUser;
+    public UserAccount createUserAccount(UserAccount userAccount, boolean isEmailConfirmed)
+            throws DuplicateUserNameException {
+        if (existsByUsername(userAccount.getUsername())) {
+            throw new DuplicateUserNameException();
         }
-        throw new DuplicateUserNameException();
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        userAccount.setPassword(encoder.encode(userAccount.getPassword()));
+        if (isEmailConfirmed) {
+            userAccount.setEnabled(true);
+        }
+        UserAccount savedUser = userRepository.save(userAccount);
+        if (!isEmailConfirmed) {
+            confirmationService.sendConfirmationEmail(savedUser.getId(), savedUser.getDefaultEmail());
+        }
+        return savedUser;
     }
 
     public UserAccount getUserById(String id) throws UserNotFoundException {
         logger.info("Searching for user with id {}", id);
-        return userDao.findById(new ObjectId(id))
+        return userRepository.findById(new ObjectId(id))
                 .orElseThrow(() -> new UserNotFoundException());
     }
 
     public UserAccount loadUserByEmail(String email) {
-        return userDao.findByDefaultEmail(email);
+        return userRepository.findByDefaultEmail(email);
     }
 
     public void saveUser(UserAccount userAccount) {
-        userDao.save(userAccount);
+        userRepository.save(userAccount);
     }
 
     public UserAccountWithTokenDto updateUserAccount(UserAccountDto userAccountDto, UserAccount userAccount) {
@@ -81,10 +79,14 @@ public class UserAccountService implements UserDetailsService {
         if (!StringUtils.equalsIgnoreCase(currentEmail, userAccountDto.getDefaultEmail())) {
             confirmationService.sendConfirmationEmail(userAccount.getId(), userAccountDto.getDefaultEmail());
         }
-        userDao.save(userAccount);
+        userRepository.save(userAccount);
         UserAccountWithTokenDto userAccountWithTokenDto = new UserAccountWithTokenDto();
         userAccountWithTokenDto.setAccessToken(new JwtAuthenticationResponse(tokenProvider.generateToken(userAccount.getUsername())));
         userAccountWithTokenDto.setUserAccountDto(UserAccountDto.toDto(userAccount));
         return userAccountWithTokenDto;
+    }
+
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 }

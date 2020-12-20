@@ -18,10 +18,10 @@ import java.util.Map;
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private final String baseBackOfficeUrl;
+    private final String baseFrontUrl;
 
-    public CustomAuthenticationFailureHandler(@Value("${app.front.url}") String baseBackOfficeUrl) {
-        this.baseBackOfficeUrl = baseBackOfficeUrl;
+    public CustomAuthenticationFailureHandler(@Value("${app.front.url}") String baseFrontUrl) {
+        this.baseFrontUrl = baseFrontUrl;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         data.put("exception", exception.getMessage());
 
         response.getOutputStream().println(objectMapper.writeValueAsString(data));
-        getRedirectStrategy().sendRedirect(request, response, baseBackOfficeUrl + "/login?msg=" + exception.getMessage());
+        getRedirectStrategy().sendRedirect(request, response,
+                baseFrontUrl + "/login?msg=" + exception.getMessage());
     }
-
 }
