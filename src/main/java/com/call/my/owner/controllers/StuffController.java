@@ -106,7 +106,6 @@ public class StuffController {
     @GetMapping("/qr")
     public @ResponseBody
     ResponseEntity generateQr(@RequestParam String stuffId, @RequestParam String size) {
-        System.out.println("QR generation");
         try {
             UserAccount userAccount = autenticationService.getUser();
             return ok().contentType(MediaType.APPLICATION_PDF)

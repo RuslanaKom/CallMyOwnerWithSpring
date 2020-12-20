@@ -53,7 +53,7 @@ public class StuffService {
     private boolean checkIfNameWasChanged(StuffDto stuffDto, ObjectId stuffId) throws NoStuffFoundException {
         Stuff existingStuff = stuffRepository.findById(stuffId)
                 .orElseThrow(() -> new NoStuffFoundException("No stuff found by id."));
-        return StringUtils.equals(existingStuff.getStuffName(), stuffDto.getStuffName());
+        return !StringUtils.equals(existingStuff.getStuffName(), stuffDto.getStuffName());
     }
 
     private void validateExistsByIdAndUserId(ObjectId stuffId, ObjectId userId) throws NoStuffFoundException {
@@ -98,7 +98,8 @@ public class StuffService {
                 .orElseThrow(() -> new NoStuffFoundException("This stuff either was deleted by owner or never existed."));
     }
 
-    public byte[] generateQr(UserAccount userAccount, String stuffId, String size) throws Exception {
+    public byte[] generateQr(UserAccount userAccount, String stuffId, String size)
+            throws Exception {
         Stuff stuff = findStuffByIdAndUser(new ObjectId(stuffId), userAccount);
         return qrPdfGenerator.generatePdf(stuff, size);
     }

@@ -36,9 +36,8 @@ public class QrPdfGenerator {
         variables.put("stuffname", stuff.getStuffName());
         variables.put("headerphrase", "Contact the owner");
         variables.put("imgAsBase64", imgAsBase64);
-        String htmlFromTemplate = processTemplate(RECOURSE_INVOICE_FTL, variables);
-        byte[] byteArray = generatePdfFromHtml(htmlFromTemplate);
-        return byteArray;
+        String htmlFromTemplate = processTemplate(variables);
+        return generatePdfFromHtml(htmlFromTemplate);
     }
 
     private String getBase64String(byte[] imgBytes) {
@@ -47,14 +46,11 @@ public class QrPdfGenerator {
         return "data:image/png;base64," + imgDataAsBase64;
     }
 
-    private String processTemplate(String templateName, Map<String, Object> model) {
-        try {
-            Template template = freeMarkerConfigurer.getConfiguration()
-                    .getTemplate(templateName, "UTF-8");
-            return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
-        } catch (TemplateException | IOException e) {
-            throw new RuntimeException(e);
-        }
+    private String processTemplate(Map<String, Object> model)
+            throws IOException, TemplateException {
+        Template template = freeMarkerConfigurer.getConfiguration()
+                .getTemplate(RECOURSE_INVOICE_FTL, "UTF-8");
+        return FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
     }
 
     private byte[] generatePdfFromHtml(String html) throws GeneratePDFException {
@@ -65,10 +61,8 @@ public class QrPdfGenerator {
                     .toStream(outputStream)
                     .run();
             return outputStream.toByteArray();
-
         } catch (Exception ex) {
             throw new GeneratePDFException(ex.getCause());
-
         }
     }
 }
