@@ -48,7 +48,6 @@ public class MessageService {
                 .map(ObjectId::new)
                 .collect(Collectors.toList());
         messageRepository.findByIdIn(ids)
-                .stream()
                 .forEach(message -> {
                     message.setNew(false);
                     messageRepository.save(message);

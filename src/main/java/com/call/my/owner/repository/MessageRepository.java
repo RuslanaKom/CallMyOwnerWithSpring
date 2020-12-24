@@ -14,7 +14,10 @@ public interface MessageRepository extends MongoRepository<Message, ObjectId> {
 
     Page<Message> findByUserIdAndStuffId(ObjectId userId, ObjectId stuffId, Pageable pageable);
 
-    Page<Message> findByUserIdAndStuffIdAndMessageTextContaining(ObjectId userId, ObjectId stuffId, String messageText, Pageable pageable);
+    Page<Message> findByUserIdAndStuffIdAndMessageTextContaining(ObjectId userId,
+                                                                 ObjectId stuffId,
+                                                                 String messageText,
+                                                                 Pageable pageable);
 
     void deleteByStuffId(ObjectId stuffId);
 

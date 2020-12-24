@@ -95,7 +95,8 @@ public class StuffService {
 
     public Stuff getStuffById(String stuffId) throws NoStuffFoundException {
         return stuffRepository.findById(new ObjectId(stuffId))
-                .orElseThrow(() -> new NoStuffFoundException("This stuff either was deleted by owner or never existed."));
+                .orElseThrow(() -> new NoStuffFoundException(
+                        "This stuff either was deleted by owner or never existed."));
     }
 
     public byte[] generateQr(UserAccount userAccount, String stuffId, String size)

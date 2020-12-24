@@ -75,6 +75,10 @@ public class UserAccountService implements UserDetailsService {
 
     public UserAccountWithTokenDto updateUserAccount(UserAccountDto userAccountDto, UserAccount userAccount) {
         String currentEmail = userAccount.getDefaultEmail();
+        if (!StringUtils.equals(userAccount.getUsername(), userAccountDto.getUsername())
+                && userRepository.existsByUsernameAndIdNot(userAccountDto.getUsername(), userAccount.getId())){
+                throw new DuplicateUserNameException();
+        }
         userAccount.setUsername(userAccountDto.getUsername());
         if (!StringUtils.equalsIgnoreCase(currentEmail, userAccountDto.getDefaultEmail())) {
             confirmationService.sendConfirmationEmail(userAccount.getId(), userAccountDto.getDefaultEmail());

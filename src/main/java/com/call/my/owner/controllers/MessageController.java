@@ -43,9 +43,11 @@ public class MessageController {
                 return ok(messageService.getMessagesByUser(userAccount.getId(), offset, size, direction));
             }
             if (StringUtils.isBlank(messageText)) {
-                return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId, offset, size, direction));
+                return ok(messageService.getMessagesByUserAndStuff(userAccount.getId(), stuffId, offset,
+                        size, direction));
             }
-            return ok(messageService.getMessagesByUserAndStuffAndText(userAccount.getId(), stuffId, offset, size, direction, messageText));
+            return ok(messageService.getMessagesByUserAndStuffAndText(userAccount.getId(), stuffId, offset,
+                    size, direction, messageText));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -64,7 +66,8 @@ public class MessageController {
     }
 
     @GetMapping("/exists/new")
-    public ResponseEntity newMessagesExistsByUSerAndStuff(@RequestParam String stuffId) throws NoLoggedInUserException {
+    public ResponseEntity newMessagesExistByUSerAndStuff(@RequestParam String stuffId)
+            throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
         try {
             return ok(messageService.newMessagesExist(new ObjectId(stuffId), userAccount.getId()));

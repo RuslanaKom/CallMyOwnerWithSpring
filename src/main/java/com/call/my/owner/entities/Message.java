@@ -12,7 +12,6 @@ public class Message {
 
     @Id
     private ObjectId id;
-
     @Indexed
     private ObjectId userId;
     @Indexed

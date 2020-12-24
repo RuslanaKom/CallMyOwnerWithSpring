@@ -15,7 +15,6 @@ public class SpringMailSender {
 
     public void sendMessage(
             String to, String subject, String text) {
-
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);

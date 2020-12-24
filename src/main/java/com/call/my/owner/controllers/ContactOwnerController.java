@@ -44,7 +44,7 @@ public class ContactOwnerController {
         try {
             stuffService.getStuffById(id);
             return new RedirectView("http://localhost:4200/contact/" + id);
-        } catch (NoStuffFoundException e) {
+        } catch (Exception e) {
             return new RedirectView("http://localhost:4200/contact/0");
         }
     }
