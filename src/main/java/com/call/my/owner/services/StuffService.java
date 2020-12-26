@@ -122,4 +122,8 @@ public class StuffService {
                 findByUserIdAndStuffNameStartingWith(userAccount.getId(), formattedName, request)
                 .map(StuffDto::toDto);
     }
+
+    public Stuff getStuffFirst() {
+        return stuffRepository.findAll().get(0);
+    }
 }

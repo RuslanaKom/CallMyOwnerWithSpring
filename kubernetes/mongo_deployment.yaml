@@ -23,4 +23,4 @@ spec:
           imagePullPolicy: Always
           name: call-my-owner-mongo
           ports:
-            - containerPort: 27018
+            - containerPort: 27017

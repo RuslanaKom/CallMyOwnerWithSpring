@@ -116,4 +116,15 @@ public class StuffController {
                     .body(e.getMessage());
         }
     }
+
+    @GetMapping("/test")
+    public @ResponseBody
+    ResponseEntity getStuffFirst() {
+        try {
+            return ok(stuffService.getStuffFirst());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+    }
 }

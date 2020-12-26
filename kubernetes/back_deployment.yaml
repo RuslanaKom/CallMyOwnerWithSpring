@@ -19,7 +19,7 @@ spec:
         app: call-my-owner-back
     spec:
       containers:
-        - image: ruslana/call_my_owner
+        - image: ruslana/call_my_owner_gmail
           imagePullPolicy: Always
           name: call-my-owner-back
           ports:

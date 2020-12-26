@@ -19,7 +19,7 @@ spec:
         app: call-my-owner-front
     spec:
       containers:
-        - image: ruslana/call_my_owner_front
+        - image: ruslana/call_my_owner_front_new
           imagePullPolicy: Always
           name: call-my-owner-front
           ports:

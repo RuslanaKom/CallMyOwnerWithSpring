@@ -8,6 +8,7 @@ import com.call.my.owner.services.MessageService;
 import com.call.my.owner.services.SpringMailSender;
 import com.call.my.owner.services.StuffService;
 import com.call.my.owner.services.UserAccountService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,21 +32,24 @@ public class ContactOwnerController {
     private final UserAccountService userService;
     private final MessageService messageService;
     private final SpringMailSender springMailSender;
+    private final String frontUrl;
 
-    public ContactOwnerController(StuffService stuffService, UserAccountService userService, MessageService messageService, SpringMailSender springMailSender) {
+    public ContactOwnerController(StuffService stuffService, UserAccountService userService, MessageService messageService,
+                                  SpringMailSender springMailSender, @Value("${app.front.url}") String frontUrl) {
         this.stuffService = stuffService;
         this.userService = userService;
         this.messageService = messageService;
         this.springMailSender = springMailSender;
+        this.frontUrl = frontUrl;
     }
 
     @GetMapping("/{id}")
     public RedirectView openContactForm(@PathVariable String id, RedirectAttributes redirectAttributes) {
         try {
             stuffService.getStuffById(id);
-            return new RedirectView("http://localhost:4200/contact/" + id);
+            return new RedirectView(frontUrl + "/contact/" + id);
         } catch (Exception e) {
-            return new RedirectView("http://localhost:4200/contact/0");
+            return new RedirectView(frontUrl + "/contact/0");
         }
     }
 

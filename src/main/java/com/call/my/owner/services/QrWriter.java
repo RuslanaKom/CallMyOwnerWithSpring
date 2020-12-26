@@ -6,8 +6,7 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -20,8 +19,14 @@ import java.util.Map;
 @Service
 public class QrWriter {
 
+    private final String backUrl;
+
+    public QrWriter(@Value("${app.back.url}") String backUrl) {
+        this.backUrl = backUrl;
+    }
+
     public byte[] createStuffQr(Stuff stuff) {
-        String url = "http://localhost:9999/loststuff/contact/" + stuff.getId();
+        String url = backUrl + "/loststuff/contact/" + stuff.getId();
         return createQRCode(url);
     }
 
