@@ -49,13 +49,11 @@ public class UserController {
 
     @PostMapping("/signin")
     public ResponseEntity authenticateUser(@RequestBody UserLoginDto userLoginDto) {
-        // AUTHENTICATION
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         userLoginDto.getUsername(), userLoginDto.getPassword()
                 )
         );
-        // JWT TOKEN CREATION
         SecurityContextHolder.getContext()
                 .setAuthentication(authentication);
         UserAccount userAccount = (UserAccount) authentication.getPrincipal();
@@ -79,7 +77,7 @@ public class UserController {
 
     @PostMapping("/update")
     public @ResponseBody
-    ResponseEntity<?> updateUserAccount(@RequestBody UserAccountDto userAccountDto) {
+    ResponseEntity updateUserAccount(@RequestBody UserAccountDto userAccountDto) {
         try {
             UserAccount userAccount = autenticationService.getUser();
             return ok(userAccountService.updateUserAccount(userAccountDto, userAccount));
@@ -102,7 +100,7 @@ public class UserController {
 
     @GetMapping
     public @ResponseBody
-    ResponseEntity getUserProfile() throws UserNotFoundException {
+    ResponseEntity getUserProfile() {
         try {
             UserAccount userAccount = autenticationService.getUser();
             return ok(UserAccountDto.toDto(userAccount));
@@ -110,13 +108,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         }
-    }
-
-    @GetMapping("/health")
-    public @ResponseBody
-    ResponseEntity<String> healthCheck() {
-        logger.info("App health check");
-        return new ResponseEntity<String>("Hello, you!", HttpStatus.OK);
     }
 
 }

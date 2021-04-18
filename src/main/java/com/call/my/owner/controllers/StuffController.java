@@ -51,7 +51,6 @@ public class StuffController {
     public @ResponseBody
     ResponseEntity deleteStuff(@RequestParam String stuffId) throws NoLoggedInUserException {
         UserAccount userAccount = autenticationService.getUser();
-        System.out.println("deletedelte");
         try {
             stuffService.deleteStuffByIdAndUser(userAccount.getId(), stuffId);
             return ok().build();

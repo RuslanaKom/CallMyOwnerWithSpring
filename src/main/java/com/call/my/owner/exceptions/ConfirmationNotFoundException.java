@@ -2,9 +2,9 @@ package com.call.my.owner.exceptions;
 
 public class ConfirmationNotFoundException extends Exception {
 
-    private static final String message = "No unconfirmed email found";
+    private static final String MESSAGE = "No unconfirmed email found";
 
     public ConfirmationNotFoundException() {
-        super(message);
+        super(MESSAGE, null, false, false);
     }
 }

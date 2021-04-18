@@ -33,7 +33,7 @@ public class QrWriter {
     private byte[] createQRCode(String url) {
         int size = 250;
         try {
-            Map<EncodeHintType, Object> hintMap = setuphintMap();
+            Map<EncodeHintType, Object> hintMap = setupHintMap();
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
             BitMatrix byteMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, size, size, hintMap);
             int width = byteMatrix.getWidth();
@@ -52,7 +52,7 @@ public class QrWriter {
         }
     }
 
-    private Map<EncodeHintType, Object> setuphintMap() {
+    private Map<EncodeHintType, Object> setupHintMap() {
         Map<EncodeHintType, Object> hintMap = new EnumMap(EncodeHintType.class);
         hintMap.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hintMap.put(EncodeHintType.MARGIN, 1);

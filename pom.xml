@@ -144,7 +144,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.6.0</version>
 				<configuration>
-					<mainClass>com.call.my.owner.app.CallMyOwnerApplication</mainClass>
+					<mainClass>com.call.my.owner.CallMyOwnerApplication</mainClass>
 				</configuration>
 			</plugin>
 			<plugin>

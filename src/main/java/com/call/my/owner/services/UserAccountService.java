@@ -24,7 +24,7 @@ import java.util.Optional;
 @Service
 public class UserAccountService implements UserDetailsService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserAccountService.class);
 
     private final UserRepository userRepository;
     private final ConfirmationService confirmationService;
@@ -37,13 +37,12 @@ public class UserAccountService implements UserDetailsService {
     }
 
     @Override
-    public UserAccount loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserAccount loadUserByUsername(String username) {
         return Optional.ofNullable(userRepository.findByUsername(username))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    public UserAccount createUserAccount(UserAccount userAccount, boolean isEmailConfirmed)
-            throws DuplicateUserNameException {
+    public UserAccount createUserAccount(UserAccount userAccount, boolean isEmailConfirmed) {
         if (existsByUsername(userAccount.getUsername())) {
             throw new DuplicateUserNameException();
         }
@@ -62,7 +61,7 @@ public class UserAccountService implements UserDetailsService {
     public UserAccount getUserById(String id) throws UserNotFoundException {
         logger.info("Searching for user with id {}", id);
         return userRepository.findById(new ObjectId(id))
-                .orElseThrow(() -> new UserNotFoundException());
+                .orElseThrow(UserNotFoundException::new);
     }
 
     public UserAccount loadUserByEmail(String email) {
@@ -90,7 +89,7 @@ public class UserAccountService implements UserDetailsService {
         return userAccountWithTokenDto;
     }
 
-    public boolean existsByUsername(String username) {
+    private boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 }
